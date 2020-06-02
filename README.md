@@ -27,6 +27,10 @@ The following R packages (available on CRAN) are needed:
 
 The 'src' folder contains
 
+* 0_download_data.R - Download data
+* 1_clean_data.R - Clean and save data
+* 2_timeseries_plots.Rmd - Plot long time series
+
 ## Useful references
 
 
