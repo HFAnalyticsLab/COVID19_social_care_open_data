@@ -1,0 +1,60 @@
+---
+title: "Exploratory"
+author: "Emma Vestesson"
+date: "02/06/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(THFstyle)
+library(lubridate)
+```
+
+## Load data
+
+```{r}
+THF_red <- '#dd0031'
+df <- readRDS( here::here('data', 'home_care_table_9.rds'))
+
+```
+
+
+When you plot number of deaths without any aggregation or adjustment you get a lot of variation as the data is by date reported to CQC and there is a drop in reporting at the weekend. 
+
+```{r}
+ggplot(df, aes(x=date, y=home_care_service_user)) +
+  geom_line(colour=THF_red) + 
+  scale_x_date(date_breaks = '3 month') +
+  theme_THF() + 
+  labs(x='', y='', 
+       title = 'Number of deaths by day reported to CQC')
+```
+
+Attempt to pllot number of deaths summarised by week to reduce the variation. 
+
+
+```{r}
+df_weekly <-df %>% 
+  mutate(date=floor_date(date, unit = "week", week_start = 1)) %>% 
+  group_by(date) %>% 
+  summarise_all(sum)
+
+ggplot(df_weekly, aes(x=date, y=home_care_service_user)) +
+  geom_line(colour=THF_red) + 
+  scale_x_date(date_breaks = '3 month') +
+  theme_THF() + 
+  labs(x='', y='', title = 'Number of deaths by week reported to CQC')
+  
+```
+Weeekly bar plot
+
+```{r}
+ggplot(df_weekly, aes(x=date, y=home_care_service_user)) +
+  geom_col(fill=THF_red) + 
+  scale_x_date(date_breaks = '3 month') +
+  theme_THF() + 
+  labs(x='', y='', title = 'Number of deaths by week reported to CQC')
+```
+
