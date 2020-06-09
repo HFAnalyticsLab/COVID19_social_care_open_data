@@ -29,6 +29,7 @@ The 'src' folder contains
 
 * 0_download_data.R - Download data
 * 1_clean_data.R - Clean and save data
+* 1_b_clean_care_homes_data - Clean care homes data 
 * 2_timeseries_plots.Rmd - Plot long time series
 
 ## Useful references
@@ -37,6 +38,8 @@ The 'src' folder contains
 ## Authors
 
 * **Emma Vestesson** - [Health Foundation profile](https://www.health.org.uk/about-the-health-foundation/our-people/improvement-analytics-unit-iau/emma-vestesson) [@gummifot](https://twitter.com/gummifot) - [emmavestesson](https://github.com/emmavestesson)
+* **Fiona Grimm** - on [Twitter](https://twitter.com/fiona_grimm) or [GitHub](https://github.com/fiona-grimm)
+
 
 ## License
 
