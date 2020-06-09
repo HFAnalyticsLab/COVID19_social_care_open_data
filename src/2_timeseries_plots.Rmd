@@ -16,15 +16,16 @@ library(lubridate)
 
 ```{r}
 THF_red <- '#dd0031'
-df <- readRDS( here::here('data', 'home_care_table_9.rds'))
-
+all_deaths <- readRDS( here::here('data', 'home_care_table_9.rds'))
+covid_deaths <- readRDS( here::here('data', 'home_care_table_8.rds'))
+home_care <- readRDS( here::here('data', 'home_care.rds'))
 ```
 
 
 When you plot number of deaths without any aggregation or adjustment you get a lot of variation as the data is by date reported to CQC and there is a drop in reporting at the weekend. 
 
 ```{r}
-ggplot(df, aes(x=date, y=home_care_service_user)) +
+ggplot(all_deaths, aes(x=date, y=home_care_service_user)) +
   geom_line(colour=THF_red) + 
   scale_x_date(date_breaks = '3 month') +
   theme_THF() + 
@@ -32,16 +33,21 @@ ggplot(df, aes(x=date, y=home_care_service_user)) +
        title = 'Number of deaths by day reported to CQC')
 ```
 
-Attempt to pllot number of deaths summarised by week to reduce the variation. 
+Attempt to plot number of deaths summarised by week to reduce the variation. 
 
 
 ```{r}
-df_weekly <-df %>% 
+all_deaths_weekly <-all_deaths %>% 
   mutate(date=floor_date(date, unit = "week", week_start = 1)) %>% 
   group_by(date) %>% 
   summarise_all(sum)
 
-ggplot(df_weekly, aes(x=date, y=home_care_service_user)) +
+covid_deaths_weekly <-covid_deaths %>% 
+  mutate(date=floor_date(date, unit = "week", week_start = 1)) %>% 
+  group_by(date) %>% 
+  summarise_all(sum)
+
+ggplot(all_deaths_weekly, aes(x=date, y=home_care_service_user)) +
   geom_line(colour=THF_red) + 
   scale_x_date(date_breaks = '3 month') +
   theme_THF() + 
@@ -51,10 +57,51 @@ ggplot(df_weekly, aes(x=date, y=home_care_service_user)) +
 Weeekly bar plot
 
 ```{r}
-ggplot(df_weekly, aes(x=date, y=home_care_service_user)) +
+ggplot(all_deaths_weekly, aes(x=date, y=home_care_service_user)) +
   geom_col(fill=THF_red) + 
   scale_x_date(date_breaks = '3 month') +
   theme_THF() + 
   labs(x='', y='', title = 'Number of deaths by week reported to CQC')
 ```
+
+Where are people receiving home care dying? total 
+```{r}
+covid_deaths_weekly %>% 
+  pivot_longer(-date, names_to = 'location') %>% 
+  group_by(location) %>% 
+  summarise(value=sum(value)) %>% 
+  ggplot(.,aes(y=value, x=location)) + geom_col(fill=THF_red) +
+ scale_fill_THF() + labs(x='', y='', title='Place of death') +
+  theme_THF()
+
+ggsave(here::here('output', 'place_of_death_home_care_service_user_bar_chart.png'))
+```
+
+
+Where are people receiving home care dying? Over time
+```{r}
+covid_deaths_weekly %>% 
+  pivot_longer(-date, names_to = 'location') %>% 
+  ggplot(.,aes(x=date, y=value, colour=location)) + geom_line() + 
+  geom_point(size=2) + geom_point(colour='white') +
+    scale_x_date(date_breaks = '1 week') + scale_colour_THF() +
+  theme_THF()
+ggsave(here::here('output', 'place_of_death_home_care_service_user_line_chart.png'))
+```
+
+
+add COVID-19 bars
+```{r}
+home_care %>% 
+  filter(date>'2019-04-01') %>% 
+mutate(date=floor_date(date, unit = "week", week_start = 1)) %>% 
+  dplyr::group_by(date, type) %>% 
+  dplyr::summarise(value=sum(value)) %>% 
+   ggplot(.,aes( x=date)) + geom_col(aes(y=value, fill=type)) +
+  scale_fill_THF() + labs(x='', y='', title='Place of death') +
+  theme_THF()
+
+ggsave(here::here('output', 'place_of_death_home_care_service_user_line_chart.png'))
+```
+
 
