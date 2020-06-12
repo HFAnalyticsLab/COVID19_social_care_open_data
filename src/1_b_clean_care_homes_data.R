@@ -52,8 +52,8 @@ ch_summary <- read.csv(here::here('data', 'original data' ,'CH_summary_2020-04-0
 ch_deaths <- ch_deaths %>% 
   mutate(region=str_to_upper(region))
 ch_deaths <- ch_summary %>% 
-  # mutate(ch_region=str_to_sentence(ch_region)) %>% 
- full_join(ch_deaths, by=c('ch_region'='region'))
+ left_join(ch_deaths, by=c('ch_region'='region')) %>% 
+  mutate(ch_region=str_to_title(ch_region))  
 
 saveRDS(ch_deaths, "data/CH_deaths_by_region.Rds")
 
