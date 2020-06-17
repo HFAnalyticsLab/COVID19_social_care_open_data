@@ -1,6 +1,7 @@
 library(tidyverse)
 library(THFstyle)
 library(patchwork)
+
 ch_deaths <- readRDS("data/CH_deaths_by_region.Rds")
 ch_deaths <- ch_deaths %>% 
   mutate(deaths_per_1000_beds=deaths/beds*1000,
