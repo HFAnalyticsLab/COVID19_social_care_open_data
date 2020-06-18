@@ -2,7 +2,8 @@ library(readxl)
 library(tidyverse)
 library(janitor)
 library(unpivotr)
-
+library(readODS)
+library(tidyr)
 
 ## Load data table 8
 home_care_table_8 <- read_excel(here::here('data', 'original data', "deathsinvolvingcovid19inthecaresectordataset.xlsx"),
@@ -102,3 +103,20 @@ eng_ons <- home_care_table_1_transposed %>%
 
 saveRDS(eng_ons, here::here('data', 'care_home_deaths_england.rds'))
 
+## Outbreaks data 
+
+outbreaks <- read_ods(here::here('data', 'original data', "Care_home_outbreaks_of_COVID-19_Management_Information.ods"), sheet='PHE_centres', skip=1)
+names(outbreaks)[1] <- "phe_centre"
+outbreaks %>% 
+  clean_names()
+outbreaks_long <- outbreaks %>% 
+  pivot_longer(contains('2020'), names_to='date', values_to='outbreaks')
+outbreaks_long <- outbreaks_long %>% 
+  group_by(phe_centre) %>% 
+  arrange(phe_centre, date) %>% 
+  mutate(outbreaks_cum=cumsum(outbreaks)) %>% 
+  clean_names()
+
+## Save data
+
+saveRDS(outbreaks_long, here::here('data', 'care_home_outbreaks_england.rds'))

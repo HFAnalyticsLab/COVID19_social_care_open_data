@@ -3,3 +3,11 @@ link <- 'https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirth
 
 destfile <- here::here('data', 'original data', "deathsinvolvingcovid19inthecaresectordataset.xlsx")
 curl_download(link, destfile = destfile)
+
+## Outbreaks data
+
+
+link <- 'https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/891406/Care_home_outbreaks_of_COVID-19_Management_Information.ods'
+
+destfile <- here::here('data', 'original data', "Care_home_outbreaks_of_COVID-19_Management_Information.ods")
+curl_download(link, destfile = destfile)
