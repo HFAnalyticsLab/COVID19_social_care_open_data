@@ -41,10 +41,10 @@ The following R packages (available on CRAN) are needed:
 The 'src' folder contains
 
 * [0_download_data.R](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/0_download_data.R) - Download data - links need to be updated for latest data
-* (https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/1_clean_data.R)[1_clean_data.R] - Clean and save data
+* [1_clean_data.R](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/1_clean_data.R) - Clean and save data
 * [1_b_clean_care_homes_data](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/1_b_clean_care_homes_data.R) - Clean care homes data 
 * [2_timeseries_plots.Rmd](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/2_timeseries_plots.Rmd) - Plot long time series
-* 3_regional_deaths_in_care_homes.R (https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/3_regional_deaths_in_care_homes.R) - plot deaths in care homes by region
+* [3_regional_deaths_in_care_homes.R](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/3_regional_deaths_in_care_homes.R) - plot deaths in care homes by region
 * [4_national_deaths_care_home_residents.R](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/4_national_deaths_care_home_residents.R) - Plot deaths in care homes during the pandemic
 * [5_regional_care_home_outbreaks](https://github.com/HFAnalyticsLab/COVID19_social_care_open_data/blob/master/src/5_regional_care_home_outbreaks.R) - plot time line of outbreaks in care homes
 
