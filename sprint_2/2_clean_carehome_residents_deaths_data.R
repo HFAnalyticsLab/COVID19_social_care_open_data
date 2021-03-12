@@ -159,11 +159,16 @@ CV_weekly_ENG<-CV_weekly %>%
   select(-c("year", "month")) %>% 
   drop_na()
 
-ch_deaths_full_ENG<-ch_deaths_full %>% 
-  left_join(CV_weekly_ENG %>% 
-              select(-c(week, calendar_years)) %>% 
-              rename(CV_all=ENG)) 
+ch_deaths_full_ENG<- CV_weekly_ENG %>% 
+  select(-c(week, calendar_years)) %>% 
+  rename(CV_all=ENG) %>% 
+  left_join(ch_deaths_full) %>% 
+  mutate(all_ch_deaths_eng=ifelse(week2=="W53",2341,all_ch_deaths_eng), 
+          CV_ch_deaths_eng=ifelse(week2=="W53",741,CV_ch_deaths_eng),
+         other_ch_deaths_eng=all_ch_deaths_eng-CV_ch_deaths_eng)
 
+
+##W53 is for England and Wales
 
 saveRDS(ch_deaths_full_ENG, here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full_ENG.rds'))
 
