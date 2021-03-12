@@ -19,7 +19,7 @@ dat<-seq(as.Date("2020-03-09"),as.Date("2020-07-13"),by="week")
 outbreaks<- outbreaks %>% 
   clean_names()
 
-outbeaks_long<-outbreaks %>% 
+outbreaks_long<-outbreaks %>% 
   bind_rows( 
     outbreaks %>% 
       summarise_if(is.numeric, sum) %>% 
@@ -36,6 +36,7 @@ tot_ch<-outbreaks %>%
   select(phe_centre,number_of_care_homes) %>% 
   summarise_if(is.numeric, sum)
 
+saveRDS(tot_ch, here::here('sprint_2', 'data', 'clean', 'care_home_total.rds'))
 
 # Incidents ---------------------------------------------------------------
 
@@ -93,7 +94,7 @@ incidents<-incidents1 %>%
 
 ##comibining the incidents and outbreaks data and adding the total number of care homes based on the last available data that we know which is the PHE report
 incidents_full<-incidents %>% 
-  full_join(outbeaks_long) %>% 
+  full_join(outbreaks_long) %>% 
   select(-week) %>% 
   rename("CV_outbreaks"="CV_new", "CV_incidents"="CV")
 
