@@ -66,21 +66,21 @@ df %>%
   geom_line(data=. %>%  filter(Metric=='prev_ch_all_eng'),aes(y=Counts, x=date, linetype=lab), stat="identity", size=2, colour="grey") +
   annotate("segment", x=as.Date("2020-03-16"), xend=as.Date("2020-03-16"), y=0, yend=9000, linetype="dashed", size=1, colour="grey")+
   annotate("segment", x=as.Date("2020-06-12"), xend=as.Date("2020-06-12"), y=0, yend=9000, linetype="dashed", size=1, colour="grey")+
-  annotate("text",x=as.Date("2020-03-16"), y=9800, label=lab[1], size=3.4, colour="grey40", hjust=0)+
-  annotate("text",x=as.Date("2020-03-16"), y=9500, label=lab2[1], size=3.4, colour="grey40",hjust=0)+
-  annotate("text",x=as.Date("2020-03-16"), y=9200, label=lab3[1], size=3.4, colour="grey40",hjust=0)+
+  annotate("text",x=as.Date("2020-03-16"), y=9800, label=lab[1], size=4, colour="grey40", hjust=0)+
+  annotate("text",x=as.Date("2020-03-16"), y=9450, label=lab2[1], size=4, colour="grey40",hjust=0)+
+  annotate("text",x=as.Date("2020-03-16"), y=9100, label=lab3[1], size=4, colour="grey40",hjust=0)+
   annotate("segment", x=as.Date("2020-09-04"), xend=as.Date("2020-09-04"), y=0, yend=9000, linetype="dashed", size=1, colour="grey40")+
-  annotate("text",x=as.Date("2020-09-04"), y=9800, label=lab[2], size=3.4, colour="black", hjust=0)+
-  annotate("text",x=as.Date("2020-09-03"), y=9500, label=lab2[2], size=3.4, colour="black", hjust=0)+
-  annotate("text",x=as.Date("2020-09-04"), y=9200, label=lab3[2], size=3.4, colour="black", hjust=0)+
+  annotate("text",x=as.Date("2020-09-04"), y=9800, label=lab[2], size=4, colour="black", hjust=0)+
+  annotate("text",x=as.Date("2020-09-03"), y=9450, label=lab2[2], size=4, colour="black", hjust=0)+
+  annotate("text",x=as.Date("2020-09-04"), y=9100, label=lab3[2], size=4, colour="black", hjust=0)+
   annotate("rect", xmin = as.Date("2020-03-16"), xmax =as.Date("2020-06-12"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
   annotate("rect", xmin = as.Date("2020-09-04"), xmax =as.Date("2021-02-22"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey40")+
   scale_x_date(date_breaks = '2 weeks', date_labels = '%d %b')+
   scale_fill_THF()+
   theme_THF()+
   labs(x= "", y="",title = "Care home resident deaths per week in England", caption=cap)+
-  theme(plot.title = element_text(size=14),legend.text=element_text(size=11),
-        axis.text.x=element_text(size=11),axis.text.y=element_text(size=11), plot.caption = element_markdown(hjust = 0))
+  theme(plot.title = element_text(size=16),legend.text=element_text(size=12),
+        axis.text.x=element_text(size=11),axis.text.y=element_text(size=11), plot.caption = element_markdown(hjust = 0, size=10))
 
 ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.png'),dpi=300)  
 
