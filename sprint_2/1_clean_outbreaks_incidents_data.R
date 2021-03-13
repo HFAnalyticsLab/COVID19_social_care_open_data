@@ -92,11 +92,13 @@ incidents<-incidents1 %>%
   full_join(incidents2) 
 
 
-##comibining the incidents and outbreaks data and adding the total number of care homes based on the last available data that we know which is the PHE report
+##combining the incidents and outbreaks data and adding the total number of care homes based on the last available data that we know which is the PHE report
 incidents_full<-incidents %>% 
   full_join(outbreaks_long) %>% 
   select(-week) %>% 
   rename("CV_outbreaks"="CV_new", "CV_incidents"="CV")
+
+##Date here is week starting, and started in Monday and then the following Sunday
 
 saveRDS(incidents_full, here::here('sprint_2', 'data','clean','care_home_outbreaks_incidents.rds'))
 

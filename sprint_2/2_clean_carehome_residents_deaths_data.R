@@ -180,7 +180,9 @@ ch_deaths_full_ENG<- CV_weekly_ENG %>%
   left_join(ch_deaths_full)
 
 
-##W53 is for England and Wales
+
+##saving data set
+##date here is week ending and reporting starts from 1st January, so Friday-Thursday the following week
 
 saveRDS(ch_deaths_full_ENG, here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full_ENG.rds'))
 
