@@ -85,9 +85,24 @@ ch_CV<-chdeaths_CV_t %>%
   select(-c("year", "month")) %>% 
   drop_na()
 
+W53_col<- c("week_ended","date", "week2","all_ch_deaths","CV_ch_deaths")
+W53_val<-c("44197","2021-01-01","W53",2341,741)
+
+W53<-as.data.frame(rbind(W53_col,W53_val)) %>% 
+  row_to_names(1) %>% 
+  mutate(week_ended=as.numeric(week_ended),
+    date=as.Date(date), 
+         all_ch_deaths=as.numeric(all_ch_deaths),
+         CV_ch_deaths=as.numeric(CV_ch_deaths)) %>% 
+  remove_rownames()
+
 ch_deaths<-ch_all %>% 
   left_join (ch_CV) %>% 
-  select(-week_number)
+  select(-week_number) %>% 
+  bind_rows(W53) %>% 
+  arrange(date) %>% 
+  mutate_if(is.numeric, ~replace(., is.na(.), 0))
+
 
 ##CV_ch_deaths is for England and Wales and the Wales figure is missing for 2020
 ##so need to extract Wales data for 2020 to get the full picture
@@ -129,7 +144,7 @@ ch_deaths_full<-ch_deaths %>%
   mutate(all_ch_deaths_eng=all_ch_deaths-wales_all_ch, CV_ch_deaths_eng=CV_ch_deaths-wales_ch_cv) %>% 
   select(-c(all_ch_deaths,CV_ch_deaths,wales_ch_cv,all_ch_deaths,wales_all_ch,wales_other_ch_deaths)) %>% 
   mutate(CV_ch_deaths_eng=replace_na(CV_ch_deaths_eng, 0)) %>% 
-  mutate(other_ch_deaths_eng=all_ch_deaths_eng-CV_ch_deaths_eng, excess_deaths_eng=all_ch_deaths_eng-prev_ch_all_eng)
+  mutate(other_ch_deaths_eng=all_ch_deaths_eng-CV_ch_deaths_eng, excess_deaths_eng=ifelse(week2=="W53", 0,all_ch_deaths_eng-prev_ch_all_eng))
 
 
 # Adding COVID-19 deaths for everyone -------------------------------------
@@ -162,10 +177,7 @@ CV_weekly_ENG<-CV_weekly %>%
 ch_deaths_full_ENG<- CV_weekly_ENG %>% 
   select(-c(week, calendar_years)) %>% 
   rename(CV_all=ENG) %>% 
-  left_join(ch_deaths_full) %>% 
-  mutate(all_ch_deaths_eng=ifelse(week2=="W53",2341,all_ch_deaths_eng), 
-          CV_ch_deaths_eng=ifelse(week2=="W53",741,CV_ch_deaths_eng),
-         other_ch_deaths_eng=all_ch_deaths_eng-CV_ch_deaths_eng)
+  left_join(ch_deaths_full)
 
 
 ##W53 is for England and Wales
