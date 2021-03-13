@@ -8,6 +8,7 @@ library(tidyverse)
 #library(plotly)
 library(ISOweek)
 library(THFstyle)
+library(here)
 
 # Loading data ------------------------------------------------------------
 
@@ -81,7 +82,7 @@ df %>%
   theme(plot.title = element_text(size=14),legend.text=element_text(size=11),
         axis.text.x=element_text(size=11),axis.text.y=element_text(size=11), plot.caption = element_markdown(hjust = 0))
 
-ggsave(here::here('sprint_2','outputs', 'care_home_residents_deaths_ONS.png'))  
+ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.png'),dpi=300)  
 
 
 

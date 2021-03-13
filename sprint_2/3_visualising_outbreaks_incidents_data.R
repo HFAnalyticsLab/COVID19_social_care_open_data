@@ -81,4 +81,4 @@ df %>%
         plot.caption = element_markdown(hjust=0, size=7.5), plot.subtitle = element_markdown(hjust=0, size=8))
 
 #saving the graph 
-ggsave(here::here('sprint_2','outputs', 'care_outbreaks_incidents.png'), dpi=300) 
+ggsave(here::here('sprint_2','graphs', 'care_outbreaks_incidents.png'), dpi=300) 
