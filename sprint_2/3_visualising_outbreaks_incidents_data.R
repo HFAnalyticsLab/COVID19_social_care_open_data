@@ -1,6 +1,15 @@
 ##Visualising the outbreaks and incidents data
+library(ggplot2)
+library(ggtext)
+library(THFstyle)
+library(tidyverse)
 
+
+#loading the data set 
 df <- readRDS(here::here('sprint_2','data', 'clean','care_home_outbreaks_incidents.rds'))
+
+
+#Creating the data notes and sources with formatting 
 
 a<-"<br> Sources: ARI Incidents from National COVID-19 survellance reports (30 Sept 2019-27-Sept 2020) and <br>National flu and COVID-19 surveillance reports (28 Sept 2020-21 Feb 2021)."
 b<-"<br> PHE COVID-19 outbreaks from COVID-19: number of outbreaks in care homes - management information (9 Mar 2020-19 July 2020)."
@@ -14,8 +23,11 @@ h<-"<br> Even though the reports uses the same PHE surveillance database, the ch
 sub<-paste0(a,b)
 cap<-paste0(c,d,e,f,g,h)
 
+#Loading in the total from PHE management data set 
+
 tot_ch<-readRDS(here::here('sprint_2','data', 'clean','care_home_total.rds'))
 
+#Calculating the total outbreaks and incidents for the first and second wave 
 
 calcs<- df %>% 
   mutate_if(is.numeric, ~replace(., is.na(.), 0)) %>% 
@@ -30,6 +42,7 @@ calcs<- df %>%
   mutate(tot_care_homes=tot_ch) %>% 
   mutate(prop_ch_outbreaks=round((CV_outbreaks/tot_care_homes)*100,1),prop_ch_incidents=round((CV_incidents/tot_care_homes)*100,1),prop_ch_ARI=round((ARI/tot_care_homes)*100,1))
 
+#extracting the calculations for the charts
 lab<-paste0(calcs$period," : ")
 lab2<-paste0(format(calcs$CV_outbreaks,big.mark = ","),
              " outbreaks of COVID-19 in care homes")
@@ -38,6 +51,7 @@ lab3<-paste0(format(calcs$ARI,big.mark = ","),
 lab4<-paste0(format(calcs$CV_incidents,big.mark = ","),
              " care homes with at least one laboratory confirmed case of COVID-19")
 
+#creating the charts 
 
 df %>% 
   filter(date>as.Date('2019-12-31')) %>% 
@@ -66,4 +80,5 @@ df %>%
   theme(legend.text=element_text(size=11),axis.text.x=element_text(size=14),axis.text.y=element_text(size=11),
         plot.caption = element_markdown(hjust=0, size=7.5), plot.subtitle = element_markdown(hjust=0, size=8))
 
+#saving the graph 
 ggsave(here::here('sprint_2','outputs', 'care_outbreaks_incidents.png'), dpi=300) 
