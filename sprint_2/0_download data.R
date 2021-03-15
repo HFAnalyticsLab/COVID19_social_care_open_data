@@ -1,4 +1,5 @@
-#Downloading the Incident/Outbreaks data sets and deaths of care home residents
+#Downloading the Incident/Outbreaks data sets 
+#and deaths of care home residents
 
 library(statswalesr)
 library(curl)

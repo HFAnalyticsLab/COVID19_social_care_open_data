@@ -35,6 +35,8 @@ outbreaks_long<-outbreaks %>%
 tot_ch<-outbreaks %>% 
   select(phe_centre,number_of_care_homes) %>% 
   summarise_if(is.numeric, sum)
+#Saving the total care homes to use for later
+#total number of care homes based on the last available data that we know which is the PHE report
 
 saveRDS(tot_ch, here::here('sprint_2', 'data', 'clean', 'care_home_total.rds'))
 
@@ -86,13 +88,13 @@ incidents2<-i3 %>%
   left_join(i2) %>% 
   mutate(date=dat3, date2=date2ISOweek(dat3))
 
-##the number are the same which means that we can just combine it as one long data set
+##The number are the same which means that we can just combine it as one long data set
 
 incidents<-incidents1 %>% 
   full_join(incidents2) 
 
 
-##combining the incidents and outbreaks data and adding the total number of care homes based on the last available data that we know which is the PHE report
+##Combining the incidents and outbreaks data 
 incidents_full<-incidents %>% 
   full_join(outbreaks_long) %>% 
   select(-week) %>% 

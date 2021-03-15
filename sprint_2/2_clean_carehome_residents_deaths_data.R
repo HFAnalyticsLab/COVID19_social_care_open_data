@@ -1,6 +1,6 @@
 #Cleaning care home residents deaths data and COVID-19 deaths
 #The ONS data set is for England and Wales, so need to clean Wales data
-#To just get England
+#to just get England
 
 
 # Library -----------------------------------------------------------------

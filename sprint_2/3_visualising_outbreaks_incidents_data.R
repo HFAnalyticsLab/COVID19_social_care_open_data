@@ -1,4 +1,5 @@
 ##Visualising the outbreaks and incidents data
+
 library(ggplot2)
 library(ggtext)
 library(THFstyle)
@@ -51,7 +52,7 @@ lab3<-paste0(format(calcs$ARI,big.mark = ","),
 lab4<-paste0(format(calcs$CV_incidents,big.mark = ","),
              " care homes with at least one laboratory confirmed case of COVID-19")
 
-#creating the charts 
+#creating the charts
 
 df %>% 
   filter(date>as.Date('2020-02-10')) %>%
