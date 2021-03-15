@@ -32,9 +32,7 @@ calcs<-df %>%
   mutate(prop_ch_cv_deaths=paste0(round((CV_ch_deaths_eng/CV_all)*100,1),"%"), 
          excess_ch_deahts=all_ch_deaths_eng-prev_ch_all_eng)
 
-df %>% filter(date>as.Date('2020-08-31'))
 
-df %>% filter(date >as.Date('2020-03-13')& date<as.Date('2020-06-19'))
 # Visualising the data ----------------------------------------------------
 
 lab<-paste0(calcs$period,": ")

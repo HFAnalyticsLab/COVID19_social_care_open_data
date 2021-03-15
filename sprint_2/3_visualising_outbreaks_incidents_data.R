@@ -54,22 +54,22 @@ lab4<-paste0(format(calcs$CV_incidents,big.mark = ","),
 #creating the charts 
 
 df %>% 
-  filter(date>as.Date('2019-12-31')) %>% 
+  filter(date>as.Date('2020-02-10')) %>%
+  select(-ARI) %>% 
   pivot_longer(!c("week_number", "date", "date2"), names_to="Metric", values_to="Count") %>% 
   mutate(lab=case_when(
-    Metric=="ARI" ~ "Acute Respiratory infection (ARI) incidents",
-    Metric=="CV_incidents" ~ "COVID-19 infection incidents",
-    Metric== "CV_outbreaks"~ "PHE COVID-19 outbreaks")) %>% 
+    Metric== "CV_outbreaks"~ "PHE COVID-19 outbreaks",
+    Metric=="CV_incidents" ~ "COVID-19 infection incidents")) %>% 
   ggplot(., aes(x=date, y=Count, group=lab, colour=lab)) + 
   geom_line(size=1) + geom_point(size=3.5) + geom_point(colour='white') +
   annotate("segment", x=as.Date("2020-03-16"), xend=as.Date("2020-03-16"), y=0, yend=1100, linetype="dashed", size=1.5, colour="grey",hjust=0)+
   annotate("segment", x=as.Date("2020-06-12"), xend=as.Date("2020-06-12"), y=0, yend=1100, linetype="dashed", size=1.5, colour="grey",hjust=0)+
   annotate("text",x=as.Date("2020-03-16"), y=1200, label=lab[1], size=3.4, colour="grey40", hjust=0)+
-  annotate("text",x=as.Date("2020-03-16"), y=1160, label=lab3[1], size=3.4, colour="grey40",hjust=0)+
+  #annotate("text",x=as.Date("2020-03-16"), y=1160, label=lab3[1], size=3.4, colour="grey40",hjust=0)+
   annotate("text",x=as.Date("2020-03-16"), y=1120, label=lab2[1], size=3.4, colour="grey40",hjust=0)+
   annotate("segment", x=as.Date("2020-09-04"), xend=as.Date("2020-09-04"), y=0, yend=1000, linetype="dashed", size=1.5, colour="grey40")+
   annotate("text",x=as.Date("2020-09-04"), y=1100, label=lab[2], size=3.4, colour="black", hjust=0)+
-  annotate("text",x=as.Date("2020-09-04"), y=1060, label=lab3[2], size=3.4, colour="black", hjust=0)+
+  #annotate("text",x=as.Date("2020-09-04"), y=1060, label=lab3[2], size=3.4, colour="black", hjust=0)+
   annotate("text",x=as.Date("2020-09-04"), y=1020, label=lab4[2], size=3.4, colour="black", hjust=0)+
   annotate("rect", xmin = as.Date("2020-03-16"), xmax =as.Date("2020-06-12"), ymin = 0, ymax = 1100, alpha = .1,fill = "grey20")+
   annotate("rect", xmin = as.Date("2020-09-04"), xmax =as.Date("2021-02-22"), ymin = 0, ymax = 1000, alpha = .1,fill = "grey40")+
