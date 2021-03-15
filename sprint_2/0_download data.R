@@ -107,7 +107,7 @@ ids_and_editions_and_versions_mort <- mapply(id=ids_and_editions_mort$id,
                                              ons_available_versions)
 names(ids_and_editions_and_versions_mort) <- ids_and_editions_mort$id_edition
 
-## so I want the `covid-19` edition and 21 edition for the newest file 
+## We want the `covid-19` edition and 21 edition for the newest file 
 
 ##Downloading the data sets
 
