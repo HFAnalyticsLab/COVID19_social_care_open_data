@@ -22,6 +22,8 @@ This project only uses public data.
 
 #### Sprint 2 
 
+Need to create a 'data' and 'graphs' folder in sprint_2 for the code to work
+
 ##### Care home resident deaths 
 [Care home resident deaths registered in England and Wales, provisional](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/carehomeresidentdeathsregisteredinenglandandwalesprovisional) <br>
 [Deaths registered weekly in England and Wales, provisional](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales) <br>
