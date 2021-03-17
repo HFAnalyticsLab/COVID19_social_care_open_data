@@ -5,7 +5,6 @@
 
 library(curl)
 library(ISOweek)
-library(dplyr)
 library(janitor)
 library(readODS)
 library(readxl)
@@ -31,8 +30,6 @@ outbreaks_long <- outbreaks %>%
 outbreaks_long <- outbreaks_long %>% 
   mutate(num_ch = outbreaks %>% select(number_of_care_homes) %>% sum(),
          CV_outbreaks_cum_pct = cumsum(100*CV_outbreaks/num_ch))
-  
-saveRDS(tot_ch, here::here('sprint_2', 'data', 'clean', 'care_home_total.rds'))
 
 # Incidents ---------------------------------------------------------------
 
