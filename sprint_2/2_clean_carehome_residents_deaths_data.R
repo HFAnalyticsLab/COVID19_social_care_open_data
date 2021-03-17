@@ -10,183 +10,195 @@ library(ISOweek)
 library(janitor)
 library(readxl)
 library(tidyverse)
-library(plotly)
-library(ISOweek)
-library(readODS)
-library(flipTime)
+library(tidylog)
+library(lubridate)
 
-
-# Care home residents deaths ----------------------------------------------
+#### Care home residents deaths - All cause England and Wales ----
 
 chdeaths_all <- read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx"),
-                           sheet = "Weekly registrations", skip = 1)
+                           sheet = "Weekly registrations", skip = 3, n_max = 9)
 
 chdeaths_all<- chdeaths_all %>% 
-  clean_names() %>% 
   remove_empty( c("rows", "cols")) 
 
-chdeaths_all_t<-chdeaths_all %>% 
-  t() %>% 
-  as.data.frame() %>% 
-  remove_rownames() %>% 
-  select(V1:V6,V18) %>% 
-  janitor::row_to_names(row_number = 1) %>% 
-  clean_names() %>% 
-  mutate(across(everything(), as.numeric)) %>% 
-  rename("all_ch_2021"= names(.)[3], "all_ch_2020"= names(.)[4], "prev_ch_all_eng"= names(.)[6], "eng_wal"= names(.)[5], "wales_all_ch"= names(.)[7])  %>% 
-  select(-eng_wal)
-ch_all<-chdeaths_all_t %>% 
-  select(week_number:week_ended, all_ch_2020:prev_ch_all_eng) %>% 
-  rename(all_ch_deaths=all_ch_2020) %>% 
-  mutate(week_ended=week_ended-371, wales_all_ch=0) %>% 
+
+chdeaths_all_t<-chdeaths_all %>%
+  pivot_longer(-`Week number`, names_to = "week_number", values_to = "count") %>%
+  rename("variable" = `Week number`) %>% 
+  filter(variable != "Week ended") %>% 
+  pivot_wider(names_from = "variable", values_from = "count") %>% 
+  clean_names()
+  
+colnames(chdeaths_all_t) <- gsub("care_home_resident_", "ch_", colnames(chdeaths_all_t))
+colnames(chdeaths_all_t) <- gsub("causes_", "", colnames(chdeaths_all_t))
+colnames(chdeaths_all_t) <- gsub("_1", "", colnames(chdeaths_all_t))
+colnames(chdeaths_all_t) <- gsub("_5", "", colnames(chdeaths_all_t))
+colnames(chdeaths_all_t) <- gsub("average_of_corresponding_week_in_", "avg_", colnames(chdeaths_all_t))
+
+# Rearrange to have 2020 and 2021 in one column
+# week starts on Saturday, not Monday -> need to shift week starts
+chdeaths_all_long <- chdeaths_all_t %>% 
+  select(-ch_deaths_all_2021) %>% 
+  rename("ch_deaths_all_england_and_wales" = "ch_deaths_all_2020") %>% 
+  mutate(week_start = ISOweek2date(str_c("2020-W", 
+                                         str_pad(week_number, 2, side = "left", pad = "0"), "-1")),
+         week_start = week_start - days(2)) %>% 
   bind_rows(chdeaths_all_t %>% 
-              filter(!is.na(all_ch_2021)) %>% 
-              select(week_number:week_ended, all_ch_2021, prev_ch_all_eng, wales_all_ch) %>% 
-              rename(all_ch_deaths=all_ch_2021)) %>% 
-  mutate(date=as.Date(week_ended, origin = "1899-12-30")) %>% 
-  mutate(date2=date2ISOweek(date)) %>% 
-  separate(., date2, sep="-", into=c("year", "week2", "month")) %>% 
-  select(-c("year", "month")) %>% 
-  drop_na()
+              select(-ch_deaths_all_2020) %>% 
+              rename("ch_deaths_all_england_and_wales" = "ch_deaths_all_2021") %>% 
+              mutate(week_start = ISOweek2date(str_c("2021-W", 
+                                                     str_pad(week_number, 2, side = "left", pad = "0"),
+                                                     "-1")),
+                     week_start = week_start - days(2))) %>% 
+  filter(!is.na(ch_deaths_all_england_and_wales))
 
-##all_ch_deaths is for England and Wales, for this need to add Wales total to just get England
-##prev_ch_all_eng is for England only
+# week 53 in 2020 was not included in the table, but as a footnote, need to add manually
+chdeaths_all_long <- chdeaths_all_long %>% 
+  add_row(week_number = "53",
+          ch_deaths_all_england_and_wales = 2341,
+          week_start = as.Date("2020-12-26"))
 
-
-# Covid-19 care home deaths -----------------------------------------------
+#### Care home residents deaths - CVOID England and Wales ----
 
 chdeaths_CV<-read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx"),
-                        sheet = "COVID-19 weekly registrations", skip = 1)
+                        sheet = "COVID-19 weekly registrations", skip = 3, n_max = 4, na = "-",
+                        col_types = c("text", rep("numeric", 53)))
 
 chdeaths_CV<- chdeaths_CV %>% 
-  clean_names() %>% 
   remove_empty( c("rows", "cols")) 
 
-chdeaths_CV_t<-chdeaths_CV %>% 
-  t() %>% 
-  as.data.frame() %>% 
-  remove_rownames() %>% 
-  select(V1:V4,V15) %>% 
-  janitor::row_to_names(row_number = 1) %>% 
-  clean_names() %>% 
-  mutate(across(everything(), as.numeric)) %>% 
-  rename("CV_2021"= names(.)[3], "CV_2020"= names(.)[4], "wales_ch_cv"= names(.)[5])
-ch_CV<-chdeaths_CV_t %>% 
-  select(week_number:week_ended, CV_2020) %>% 
-  rename(CV_ch_deaths=CV_2020) %>% 
-  mutate(week_ended=week_ended-371,wales_ch_cv=0) %>% 
+chdeaths_CV_t<-chdeaths_CV %>%
+  pivot_longer(-`Week number`, names_to = "week_number", values_to = "count") %>%
+  rename("variable" = `Week number`) %>% 
+  filter(variable != "Week ended") %>% 
+  pivot_wider(names_from = "variable", values_from = "count") %>% 
+  clean_names()
+
+colnames(chdeaths_CV_t) <- gsub("care_home_resident_deaths_involving_covid_19", "ch_covid_deaths", colnames(chdeaths_CV_t))
+colnames(chdeaths_CV_t) <- gsub("_6", "", colnames(chdeaths_CV_t))
+colnames(chdeaths_CV_t) <- gsub("20211", "2021", colnames(chdeaths_CV_t))
+
+# Rearrange to have 2020 and 2021 in one column
+chdeaths_CV_long <- chdeaths_CV_t %>% 
+  select(-ch_covid_deaths_2021) %>% 
+  rename("ch_covid_deaths_england_and_wales" = "ch_covid_deaths_2020") %>% 
+  mutate(week_start = ISOweek2date(str_c("2020-W", 
+                                         str_pad(week_number, 2, side = "left", pad = "0"), "-1")),
+         week_start = week_start - days(2)) %>% 
   bind_rows(chdeaths_CV_t %>% 
-              filter(!is.na(CV_2021)) %>% 
-              select(week_number:week_ended, CV_2021, wales_ch_cv) %>% 
-              rename(CV_ch_deaths=CV_2021)) %>% 
-  mutate(date=as.Date(week_ended, origin = "1899-12-30")) %>% 
-  mutate(date2=date2ISOweek(date)) %>% 
-  separate(., date2, sep="-", into=c("year", "week2", "month")) %>% 
-  select(-c("year", "month")) %>% 
-  drop_na()
-
-W53_col<- c("week_ended","date", "week2","all_ch_deaths","CV_ch_deaths")
-W53_val<-c("44197","2021-01-01","W53",2341,741)
-
-W53<-as.data.frame(rbind(W53_col,W53_val)) %>% 
-  row_to_names(1) %>% 
-  mutate(week_ended=as.numeric(week_ended),
-    date=as.Date(date), 
-         all_ch_deaths=as.numeric(all_ch_deaths),
-         CV_ch_deaths=as.numeric(CV_ch_deaths)) %>% 
-  remove_rownames()
-
-ch_deaths<-ch_all %>% 
-  left_join (ch_CV) %>% 
-  select(-week_number) %>% 
-  bind_rows(W53) %>% 
-  arrange(date) %>% 
-  mutate_if(is.numeric, ~replace(., is.na(.), 0))
+              select(-ch_covid_deaths_2020) %>% 
+              rename("ch_covid_deaths_england_and_wales" = "ch_covid_deaths_2021") %>% 
+              mutate(week_start = ISOweek2date(str_c("2021-W", 
+                                                     str_pad(week_number, 2, side = "left", pad = "0"),
+                                                     "-1")),
+                     week_start = week_start - days(2))) %>% 
+  filter(!is.na(ch_covid_deaths_england_and_wales))
 
 
-##CV_ch_deaths is for England and Wales and the Wales figure is missing for 2020
-##so need to extract Wales data for 2020 to get the full picture
+# week 53 in 2020 was not included in the table, but as a footnote, need to add manually
+chdeaths_CV_long <- chdeaths_CV_long %>% 
+  add_row(week_number = "53",
+          ch_covid_deaths_england_and_wales = 741,
+          week_start = as.Date("2020-12-26"))
 
-wales <- readRDS(here::here('sprint_2','data', 'care_home_residents_deaths_wales.rds'))
+#### Care home residents deaths - All cause and COVID in England 2020 ----
+chdeaths_England_2020 <- read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths_2020.xlsx"),
+                           sheet = "Data", skip = 2, n_max = 6, na = "-",
+                           col_types = c("text", rep("numeric", 54)))
 
-wales<- wales %>% 
-  clean_names() %>% 
+chdeaths_England_2020<- chdeaths_England_2020 %>% 
   remove_empty( c("rows", "cols")) 
 
-wales_wide <-wales %>% 
-  arrange(date_sort_order) %>% 
-  filter(grepl(' [0-9]{4}', date_hierarchy)) %>% 
-  select(data:date_code) %>% 
-  mutate(data=as.numeric(data), date_code=flipTime::AsDate(date_code)) %>% 
-  mutate(date2=(lubridate::ceiling_date(date_code, unit='week', week_start = 5))) %>% 
-  filter(date_code >as.Date('2019-12-01'))
-wales_all<-wales_wide %>% 
-  filter(causeof_death_item_name_eng!="COVID19 Related") %>% 
-  rename("other_ch_deaths"="data") %>% 
-  select(other_ch_deaths, date_code, date2) %>% 
-  left_join(wales_wide %>% 
-              filter(causeof_death_item_name_eng=="COVID19 Related") %>% 
-              rename("CV_ch_deaths"="data") %>% 
-              select(CV_ch_deaths, date_code, date2)) %>% 
-  mutate(CV_ch_deaths=replace_na(CV_ch_deaths, 0)) %>% 
-  group_by(date2) %>% 
-  summarise_if(is.numeric, sum) %>% 
-  mutate(all_ch_deaths=CV_ch_deaths+other_ch_deaths,date=date2ISOweek(date2)) %>% 
-  separate(., date, sep="-", into=c("year", "week2", "month")) %>% 
-  select(-c("year", "month")) %>% 
-  drop_na()
 
-ch_deaths_full<-ch_deaths %>%
-  left_join(wales_all %>% 
-              rename("wales_cv"= "CV_ch_deaths", "wales_all"= "all_ch_deaths",  "wales_other_ch_deaths"="other_ch_deaths", "date"="date2")) %>% 
-  mutate(wales_all_ch=ifelse(wales_all_ch==0,wales_all,wales_all_ch),wales_ch_cv=ifelse(wales_ch_cv==0,wales_cv,wales_ch_cv)) %>% 
-  select(-c(wales_all,wales_cv)) %>% 
-  mutate(all_ch_deaths_eng=all_ch_deaths-wales_all_ch, CV_ch_deaths_eng=CV_ch_deaths-wales_ch_cv) %>% 
-  select(-c(all_ch_deaths,CV_ch_deaths,wales_ch_cv,all_ch_deaths,wales_all_ch,wales_other_ch_deaths)) %>% 
-  mutate(CV_ch_deaths_eng=replace_na(CV_ch_deaths_eng, 0)) %>% 
-  mutate(other_ch_deaths_eng=all_ch_deaths_eng-CV_ch_deaths_eng, excess_deaths_eng=ifelse(week2=="W53", 0,all_ch_deaths_eng-prev_ch_all_eng))
+chdeaths_England_2020_t <- chdeaths_England_2020 %>%
+  pivot_longer(-`Week number`, names_to = "week_number", values_to = "count") %>%
+  rename("variable" = `Week number`) %>% 
+  filter(variable != "Week ended (2020 only)" & variable != "England") %>% 
+  pivot_wider(names_from = "variable", values_from = "count") %>% 
+  clean_names()
+
+colnames(chdeaths_England_2020_t) <- gsub("care_home_resident_", "ch_", colnames(chdeaths_England_2020_t))
+colnames(chdeaths_England_2020_t) <- gsub("_causes", "", colnames(chdeaths_England_2020_t))
+colnames(chdeaths_England_2020_t) <- gsub("_5", "", colnames(chdeaths_England_2020_t))
+
+# Rearrange to have 2020 and 2021 in one column
+# week starts on Saturday, not Monday -> need to shift week starts
+chdeaths_England_2020_long <- chdeaths_England_2020_t %>% 
+  rename("ch_deaths_all_england" = "ch_deaths_all",
+         "ch_covid_deaths_england" = "ch_deaths_involving_covid_19") %>% 
+  mutate(week_start = ISOweek2date(str_c("2020-W", 
+                                         str_pad(week_number, 2, side = "left", pad = "0"), "-1")),
+         week_start = week_start - days(2)) 
+
+#### Care home residents deaths - All cause and COVID in Wales 2021 ----
 
 
-# Adding COVID-19 deaths for everyone -------------------------------------
+chdeaths_all_wales <- read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx"),
+                           sheet = "Weekly registrations", skip = 3, n_max = 20)
 
-CV_weekly<-readRDS(here::here('sprint_2','data', 'CV_ENG_ONS.rds'))
+chdeaths_all_wales <- chdeaths_all_wales %>% 
+  remove_empty( c("rows", "cols")) %>% 
+  filter(`Week number` == "W92000004")  %>%
+  select(-2)
 
-CV_weekly_ENG<-CV_weekly %>% 
+chdeaths_all_wales <- chdeaths_all_wales %>% 
+  pivot_longer(-`Week number`, names_to = "week_number", values_to = "ch_deaths_all_wales")
+
+
+chdeaths_covid_wales <- read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx"),
+                                 sheet = "COVID-19 weekly registrations", skip = 3, n_max = 16,
+                                 col_types = c("text", "text", rep("numeric", 52)))
+
+chdeaths_covid_wales <- chdeaths_covid_wales %>% 
+  remove_empty( c("rows", "cols")) %>% 
+  filter(`Week number` == "W92000004")  %>%
+  select(-2)
+
+chdeaths_covid_wales <- chdeaths_covid_wales %>% 
+  pivot_longer(-`Week number`, names_to = "week_number", values_to = "ch_deaths_covid_wales")
+
+
+chdeaths_wales <- chdeaths_all_wales %>% 
+  left_join(chdeaths_covid_wales) %>% 
+  select(-`Week number`) %>% 
+  filter(!is.na(ch_deaths_all_wales)) %>% 
+  mutate(week_start = ISOweek2date(str_c("2021-W", 
+                                         str_pad(week_number, 2, side = "left", pad = "0"), "-1")),
+         week_start = week_start - days(2)) 
+
+  
+# Adding COVID-19 deaths for everyone in England -------------------------------------
+
+CV_weekly <- readRDS(here::here('sprint_2','data', 'CV_ENG_ONS.rds'))
+
+CV_weekly <- CV_weekly %>% 
+  pivot_wider(names_from = "geography", values_from = "nr_deaths") %>% 
   clean_names() %>% 
-  filter(geography=="England and Wales") %>% 
-  rename("ENG_WAL"=nr_deaths) %>% 
-  select(-geography) %>% 
-  left_join(CV_weekly %>% 
-              clean_names() %>% 
-              filter(geography=="Wales") %>% 
-              rename("WAL"=nr_deaths) %>% 
-              select(-geography)) %>% 
-  mutate(ENG=ENG_WAL-WAL) %>% 
-  arrange(.,calendar_years, week_number, recorded_deaths) %>% 
+    mutate(covid_deaths_england = england_and_wales - wales) %>% 
   filter(recorded_deaths=="deaths-involving-covid-19-registrations") %>% 
-  separate(., week_number, sep="-", into=c("X","week")) %>% 
-  mutate(week=as.numeric(week)) %>% 
-  select(-c(X, recorded_deaths, ENG_WAL, WAL)) %>% 
-  arrange(., calendar_years, week) %>% 
-  mutate(date=c(seq(as.Date("2020-01-03"),as.Date("2021-01-01"),by="week"), seq(as.Date("2021-01-08"),as.Date("2021-02-26"),by="week"))) %>% 
-  mutate(date2=date2ISOweek(date)) %>% 
-  separate(., date2, sep="-", into=c("year", "week2", "month")) %>% 
-  select(-c("year", "month")) %>% 
-  drop_na()
+  mutate(week_start = ISOweek2date(str_c(calendar_years , "-W", 
+                                         str_pad(gsub("week-", "", week_number), 2, side = "left", pad = "0"), "-1")),
+         week_start = week_start - days(2)) %>% 
+  arrange(week_start)
 
-ch_deaths_full_ENG<- CV_weekly_ENG %>% 
-  select(-c(week, calendar_years)) %>% 
-  rename(CV_all=ENG) %>% 
-  left_join(ch_deaths_full)
+CV_weekly <- CV_weekly %>% 
+  select(-recorded_deaths, - week_number, - wales, -england_and_wales, -calendar_years)
+  
+   
+# Combine all data sets ---------------------------------------------------
 
+combined_data <- chdeaths_all_long %>% 
+  left_join(chdeaths_CV_long) %>% 
+  left_join(chdeaths_England_2020_long) %>% 
+  left_join(chdeaths_wales) %>% 
+  left_join(CV_weekly) %>% 
+  select(week_number, week_start, everything()) %>% 
+  arrange(week_start)
 
+combined_data <- combined_data %>% 
+  mutate(ch_deaths_all_england = if_else(is.na(ch_deaths_all_england), ch_deaths_all_england_and_wales - ch_deaths_all_wales, ch_deaths_all_england),
+         ch_covid_deaths_england = if_else(is.na(ch_covid_deaths_england), ch_covid_deaths_england_and_wales - ch_deaths_covid_wales, ch_covid_deaths_england))
 
-##saving data set
-##date here is week ending and reporting starts from 1st January, so Friday-Thursday the following week
-
-saveRDS(ch_deaths_full_ENG, here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full_ENG.rds'))
-
-
-
+saveRDS(combined_data, here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full_ENG.rds'))
 
 

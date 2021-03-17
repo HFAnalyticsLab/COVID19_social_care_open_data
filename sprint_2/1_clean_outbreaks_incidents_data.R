@@ -9,96 +9,53 @@ library(dplyr)
 library(janitor)
 library(readODS)
 library(readxl)
+library(tidyverse)
 
 # Outbreaks ---------------------------------------------------------------
 
 outbreaks <- read_ods(here::here('sprint_2', 'data', "Care_home_outbreaks.ods"), sheet='PHE_centres', skip=1)
 
-dat<-seq(as.Date("2020-03-09"),as.Date("2020-07-13"),by="week")
 
 outbreaks<- outbreaks %>% 
   clean_names()
 
-outbreaks_long<-outbreaks %>% 
-  bind_rows( 
-    outbreaks %>% 
-      summarise_if(is.numeric, sum) %>% 
-      mutate(phe_centre= "Total")
-  ) %>% 
-  filter(phe_centre=="Total") %>% 
-  pivot_longer(contains('2020'), names_to='week', values_to='CV_new') %>% 
-  mutate(date=dat, date2=date2ISOweek(dat)) %>% 
-  select(week:date2)
+outbreaks_long <- outbreaks %>%
+  select(c(-all_outbreaks, -number_of_care_homes, -phec15cd, -percentage_of_care_homes_that_have_reported_an_outbreak)) %>% 
+  pivot_longer(-phe_centre, names_to = "week", values_to = "CV_outbreaks") %>% 
+  group_by(week) %>% 
+  summarise(CV_outbreaks = sum(CV_outbreaks)) %>% 
+  mutate(week_start = as.Date(gsub("x", "", week), format = "%Y_%m_%d"),
+         week = date2ISOweek(week_start))
 
-#Total care homes
-
-tot_ch<-outbreaks %>% 
-  select(phe_centre,number_of_care_homes) %>% 
-  summarise_if(is.numeric, sum)
-#Saving the total care homes to use for later
-#total number of care homes based on the last available data that we know which is the PHE report
-
+# Calculate cumulative % of homes that had at least one outbreak
+outbreaks_long <- outbreaks_long %>% 
+  mutate(num_ch = outbreaks %>% select(number_of_care_homes) %>% sum(),
+         CV_outbreaks_cum_pct = cumsum(100*CV_outbreaks/num_ch))
+  
 saveRDS(tot_ch, here::here('sprint_2', 'data', 'clean', 'care_home_total.rds'))
 
 # Incidents ---------------------------------------------------------------
 
-
-##COVID-19 Surveillance data 
-
-dat2<-seq(as.Date("2019-09-30"),as.Date("2020-09-21"),by="week")
-
-cv1<-read_excel(here::here('sprint_2', 'data', "Care_home_incident1.xlsx"),
-                sheet = "Figure 20. COVID-19 Incidents", skip = 8)
-
-cv1<- cv1 %>% 
-  clean_names() %>% 
-  rename("week_number"= "x1", "CV"="care_home") %>% 
-  select("week_number", "CV") 
-
-
-i1<- read_excel(here::here('sprint_2', 'data', "Care_home_incident1.xlsx"),
-                sheet = "Figure 19. ARI Incidents", skip = 8)
-
-incidents1<- i1 %>% 
-  clean_names() %>% 
-  rename("week_number"= "x1", "ARI"="care_home") %>% 
-  select("week_number", "ARI") %>% 
-  left_join(cv1) %>% 
-  mutate(date=dat2, date2=date2ISOweek(dat2))
-
 ##National flu and COVID-19 surveillance reports
-
-dat3<-seq(as.Date("2020-06-29"),as.Date("2021-02-15"),by="week")
-
-i2 <- read_excel(here::here('sprint_2', 'data', "Care_home_incident2.xlsx"),
-                 sheet = "Figure 17. ARI IncidentsEngland", skip = 7)
-
-i2<- i2 %>% 
-  clean_names() %>% 
-  rename("ARI"="care_home") %>% 
-  select("week_number", "ARI")
 
 i3 <- read_excel(here::here('sprint_2', 'data', "Care_home_incident2.xlsx"),
                  sheet = "Figure 18. ARI Care Home", skip = 7)
 
-incidents2<-i3 %>% 
+incidents <-i3 %>% 
   clean_names() %>% 
-  rename("CV"="sars_cov_2") %>% 
-  select("week_number", "CV") %>% 
-  left_join(i2) %>% 
-  mutate(date=dat3, date2=date2ISOweek(dat3))
-
-##The number are the same which means that we can just combine it as one long data set
-
-incidents<-incidents1 %>% 
-  full_join(incidents2) 
+  rename("CV_incidents"="sars_cov_2") %>% 
+  select("week_number", "CV_incidents") %>% 
+  mutate(week_start = if_else(week_number >= 27,
+                              ISOweek2date(str_c("2020-W", str_pad(week_number, 2, side = "left", pad = "0"), "-1")),
+                              ISOweek2date(str_c("2021-W", str_pad(week_number, 2, side = "left", pad = "0"), "-1"))), 
+         week = date2ISOweek(week_start))
 
 
 ##Combining the incidents and outbreaks data 
-incidents_full<-incidents %>% 
-  full_join(outbreaks_long) %>% 
-  select(-week) %>% 
-  rename("CV_outbreaks"="CV_new", "CV_incidents"="CV")
+incidents_full<- outbreaks_long %>% 
+  full_join(incidents) %>% 
+  fill(num_ch, .direction = "down") %>% 
+  mutate(CV_incidents_cum_pct = cumsum(100*coalesce(CV_incidents,0)/num_ch))
 
 ##Date here is week starting, and started in Monday and then the following Sunday
 

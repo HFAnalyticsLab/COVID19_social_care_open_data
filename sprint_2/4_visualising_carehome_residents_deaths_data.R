@@ -3,11 +3,10 @@
 
 # Libraries -----------------------------------------------------------------
 library(ggtext)
-library(ggplot2)
 library(tidyverse)
-#library(plotly)
 library(ISOweek)
 library(THFstyle)
+# THFstyle is available on GitHub: https://github.com/THF-evaluative-analytics/THFstyle
 library(here)
 
 # Loading data ------------------------------------------------------------
@@ -18,68 +17,71 @@ df <- readRDS(here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full
 
 # Calculating excess deaths and % of COVID deaths -------------------------
 
-calcs<-df %>%
-  mutate_if(is.numeric, ~replace(., is.na(.), 0)) %>% 
-  filter(date >as.Date('2020-03-13')& date<as.Date('2020-06-19')) %>% 
-  summarise_if(is.numeric, sum) %>% 
-  mutate(period="First Wave", date= "13 March 2020- 11 June 2020") %>% 
-  bind_rows(df %>%
-              mutate_if(is.numeric, ~replace(., is.na(.), 0)) %>% 
-              filter(date>as.Date('2020-09-04')) %>%
-              summarise_if(is.numeric, sum) %>% 
-              mutate(period="Second Wave", date= "04 September 2020- 18 Feb 2021")) %>% 
-  select(-(week_ended))%>% 
-  mutate(prop_ch_cv_deaths=paste0(round((CV_ch_deaths_eng/CV_all)*100,1),"%"), 
-         excess_ch_deahts=all_ch_deaths_eng-prev_ch_all_eng)
 
+df <- df %>%
+  mutate(wave = case_when(week_start >= as.Date('2020-03-14')& week_start<=as.Date('2020-06-13') ~ "first_wave",
+                          week_start>=as.Date('2020-09-05') ~ "second_wave",
+                          TRUE ~ NA_character_),
+         ch_deaths_noncovid_england = ch_deaths_all_england - ch_covid_deaths_england)
+
+calcs <-  df %>%
+  filter(!is.na(wave)) %>% 
+  group_by(wave) %>% 
+  summarise(ch_deaths_all_england = sum(ch_deaths_all_england, na.rm = TRUE),
+            ch_deaths_noncovid_england = sum(ch_deaths_noncovid_england, na.rm = TRUE),
+            ch_covid_deaths_england = sum(ch_covid_deaths_england, na.rm = TRUE),
+            covid_deaths_england = sum(covid_deaths_england, na.rm = TRUE),
+            ch_deaths_all_avg_2015_2019_england = sum(ch_deaths_all_avg_2015_2019_england, na.rm = TRUE)) %>% 
+  mutate(excess_ch_deaths = ch_deaths_all_england - ch_deaths_all_avg_2015_2019_england,
+         prop_ch_covid_deaths = round(100*ch_covid_deaths_england / covid_deaths_england, 1))
 
 # Visualising the data ----------------------------------------------------
 
-lab<-paste0(calcs$period,": ")
-lab2<-paste0(format(calcs$excess_ch_deahts,big.mark = ","),
-             " excess deaths in care home residents compared to 2015-2019 average.")
-lab3<-paste0("Care home residents accounted for ", calcs$prop_ch_cv_deaths, " of all COVID-19 registered deaths.")
+lab_firstwave<-paste0("First wave (14 March - 19 June):\n",
+                      format(calcs$ch_covid_deaths_england[calcs$wave == "first_wave"],big.mark = ","),
+                      " COVID-19 deaths,\n", 
+                      format(calcs$excess_ch_deaths[calcs$wave == "first_wave"],big.mark = ","),
+                      " excess deaths, compared to 2015-2019 average")
+lab_secondwave<-paste0("Second wave (from 5 September):\n",
+                       format(calcs$ch_covid_deaths_england[calcs$wave == "second_wave"],big.mark = ","),
+                       " COVID-19 deaths,\n", 
+                       format(calcs$excess_ch_deaths[calcs$wave == "second_wave"],big.mark = ","),
+                       " excess deaths, compared to 2015-2019 average")
 
-a<-"<br> Sources: England care home resident deaths from Office of National Statistics. Care home resident deaths registered in England and Wales, provisional, 2021"
-b<-"<br> For 2020, Wales registered deaths were not available on the ONS website, death notifications from Care Insprector Wales was
-obtained from StatsWales. <br>Notifications of residents from adult care homes by notification and causes, 2020. This is likely to understimate the figures"
-c<-"<br> Excess deaths for second wave is an estimate as week 53, 2015-2019 average deaths for care home residents was not available"
-d<-"<br> Office of National Statistics. Deaths registered weekly in England and Wales, provisional, 2021"
-
-cap<-paste0(a,b,c,d)
-
-#p<- 
 df %>% 
-  filter(date>as.Date('2020-03-06')) %>% 
-  mutate(prev_ch_all_eng=ifelse(week2=="W53",NA,prev_ch_all_eng)) %>% 
-  pivot_longer(-c(week_ended,week2,date), names_to="Metric", values_to="Counts") %>% 
-  mutate(lab= case_when(
-    Metric== "all_ch_deaths_eng" ~ "All care home resident deaths", 
-    Metric==  "CV_ch_deaths_eng"  ~ "COVID-19 related deaths",
-    Metric== "other_ch_deaths_eng" ~ "Other causes",
-    Metric== "prev_ch_all_eng" ~ "All causes, average corresponding week in 2015-2019",
-    Metric== "CV_all" ~ "COVID-19 related deaths for all")) %>% 
-  ggplot(.)+
-  geom_bar(data=. %>%  filter (Metric %in% c('CV_ch_deaths_eng', 'other_ch_deaths_eng')),aes(x=date, y=Counts,fill=lab),position="stack", stat="identity") +
-  geom_line(data=. %>%  filter(Metric=='prev_ch_all_eng'),aes(y=Counts, x=date, linetype=lab), stat="identity", size=2, colour="grey") +
-  annotate("segment", x=as.Date("2020-03-16"), xend=as.Date("2020-03-16"), y=0, yend=9000, linetype="dashed", size=1, colour="grey")+
-  annotate("segment", x=as.Date("2020-06-12"), xend=as.Date("2020-06-12"), y=0, yend=9000, linetype="dashed", size=1, colour="grey")+
-  annotate("text",x=as.Date("2020-03-16"), y=9800, label=lab[1], size=4, colour="grey40", hjust=0)+
-  annotate("text",x=as.Date("2020-03-16"), y=9450, label=lab2[1], size=4, colour="grey40",hjust=0)+
-  annotate("text",x=as.Date("2020-03-16"), y=9100, label=lab3[1], size=4, colour="grey40",hjust=0)+
-  annotate("segment", x=as.Date("2020-09-04"), xend=as.Date("2020-09-04"), y=0, yend=9000, linetype="dashed", size=1, colour="grey40")+
-  annotate("text",x=as.Date("2020-09-04"), y=9800, label=lab[2], size=4, colour="black", hjust=0)+
-  annotate("text",x=as.Date("2020-09-03"), y=9450, label=lab2[2], size=4, colour="black", hjust=0)+
-  annotate("text",x=as.Date("2020-09-04"), y=9100, label=lab3[2], size=4, colour="black", hjust=0)+
-  annotate("rect", xmin = as.Date("2020-03-16"), xmax =as.Date("2020-06-12"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
-  annotate("rect", xmin = as.Date("2020-09-04"), xmax =as.Date("2021-02-22"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey40")+
-  scale_x_date(date_breaks = '2 weeks', date_labels = '%d %b')+
+  filter(week_start>as.Date('2020-03-06')) %>% 
+  select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england) %>% 
+  pivot_longer(-week_start, names_to="variable", values_to="count") %>% 
+  mutate(variable = case_when(variable == "ch_deaths_noncovid_england" ~ "NON-COVID-19",
+                              variable == "ch_covid_deaths_england" ~  "COVID-19")) %>% 
+  ggplot(aes(x = week_start, y = count, fill = variable))+
+  geom_bar(position="stack", stat="identity") +
+  geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
+            aes(x = week_start, y = ch_deaths_all_avg_2015_2019_england, fill = NULL, color = "average 2015-2019"),  stat="identity", size=1) +
+  scale_x_date(date_breaks = '4 weeks', date_labels = '%d %b %g') +
+  
+  annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
+  annotate("segment", x=as.Date("2020-06-15"), xend=as.Date("2020-06-15"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
+  annotate("text",x=as.Date("2020-03-11"), y=9800, label=lab_firstwave, size=4, colour="black",hjust=0)+
+  annotate("segment", x=as.Date("2020-09-02"), xend=as.Date("2020-09-02"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
+  annotate("text",x=as.Date("2020-09-02"), y=9800, label=lab_secondwave, size=4, colour="black", hjust=0)+
+  annotate("rect", xmin = as.Date("2020-03-11"), xmax =as.Date("2020-06-15"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
+  annotate("rect", xmin = as.Date("2020-09-02"), xmax =as.Date("2021-02-22"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
   scale_fill_THF()+
-  theme_THF()+
-  labs(x= "", y="",title = "Care home resident deaths per week in England", caption=cap)+
+  theme_THF() +
+  scale_colour_manual(name="", values=c("average 2015-2019" = "grey20")) +  
+  labs(x= "", y="")+
+  scale_y_continuous(limits = c(0,11000), breaks = seq(0, 11000, by = 2000))+
   theme(plot.title = element_text(size=16),legend.text=element_text(size=12),
         axis.text.x=element_text(size=11),axis.text.y=element_text(size=11), plot.caption = element_markdown(hjust = 0, size=10))
 
-ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.png'),dpi=300)  
+  ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.png'),dpi=300,
+         width = 10, height = 6.5) 
 
-
+  
+  df %>% 
+    filter(week_start>as.Date('2020-03-06')) %>% 
+    select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england, ch_deaths_all_avg_2015_2019_england) %>% 
+    pivot_longer(-week_start, names_to="variable", values_to="count") %>% 
+    write_csv(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.csv'))
+  
