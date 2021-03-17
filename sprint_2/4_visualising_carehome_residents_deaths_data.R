@@ -4,7 +4,6 @@
 # Libraries -----------------------------------------------------------------
 library(ggtext)
 library(tidyverse)
-library(ISOweek)
 library(THFstyle)
 # THFstyle is available on GitHub: https://github.com/THF-evaluative-analytics/THFstyle
 library(here)
