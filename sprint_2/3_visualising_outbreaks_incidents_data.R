@@ -7,13 +7,8 @@ library(THFstyle)
 
 
 
-#loading the data set 
+#Loading the data set 
 df <- readRDS(here::here('sprint_2','data', 'clean','care_home_outbreaks_incidents.rds'))
-
-
-#Loading in the total from PHE management data set 
-
-tot_ch<-readRDS(here::here('sprint_2','data', 'clean','care_home_total.rds'))
 
 #Calculating the total outbreaks and incidents for the first and second wave 
 
