@@ -1,7 +1,6 @@
 #Downloading the Incident/Outbreaks data sets 
 #and deaths of care home residents
 
-library(statswalesr)
 library(curl)
 library(tidyverse)
 library(monstR)
@@ -59,4 +58,58 @@ link<-'https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandso
 
 destfile <- here::here('sprint_2', 'data', "carehomeresidentsdeaths_2020.xlsx")
 curl_download(link, destfile = destfile)
+
+
+
+# COVID-19 deaths ---------------------------------------------------------
+
+##Weekly mortality data set from ONS using monstR package
+
+#Checking available data sets 
+datasets <- ons_available_datasets()
+
+##Finding the identifiers
+mortality_id <- datasets %>% 
+  filter(str_detect(tolower(title),'deaths')) %>%
+  filter(str_detect(tolower(title),'by region')) %>%
+  pull(id)
+
+mortality_id
+
+datasets %>%
+  filter(id %in% mortality_id) %>%
+  select(title)
+
+##Finding the right editions and versions of the data set 
+ids_and_editions_mort <- map(mortality_id, ons_available_editions) %>% 
+  set_names(mortality_id) %>% 
+  bind_rows(.id='id') %>%
+  mutate(.,id_edition=paste(id,edition,sep="-"))
+
+ids_and_editions_and_versions_mort <- mapply(id=ids_and_editions_mort$id,
+                                             edition=ids_and_editions_mort$edition,
+                                             ons_available_versions)
+names(ids_and_editions_and_versions_mort) <- ids_and_editions_mort$id_edition
+
+## We want the `covid-19` edition and 21 edition for the newest file 
+
+##Downloading the data sets
+
+set_up_df <- monstr_pipeline_defaults(download_root = here('sprint_2')) %>% 
+  ons_datasets_setup() 
+
+set_up_df %>%
+  ons_dataset_by_id(id=mortality_id,edition="covid-19",version=21)  %>%
+  ons_download(format="csv") %>%
+  monstr_read_file() %>%  
+  monstr_clean() %>%
+  monstr_write_clean(format="all")
+
+CV_weekly<- fread(here("sprint_2","data","clean","ons","weekly-deaths-region","covid-19","weekly-deaths-region-v21.csv"), header=TRUE, sep=",", check.names=TRUE) %>%
+  rename(.,nr_deaths=v4_1) %>%
+  arrange(.,administrative_geography,desc(calendar_years)) %>% 
+  filter(geography %in% c("England and Wales", "Wales"),!is.na(nr_deaths)) %>% 
+  select(nr_deaths,calendar_years,geography, week_number,recorded_deaths)
+
+saveRDS(CV_weekly, here::here('sprint_2', 'data', 'CV_ENG_ONS.rds'))
 
