@@ -84,9 +84,5 @@ ggsave(here::here('sprint_2','graphs', 'care_outbreaks_incidents.png'), dpi=300,
 
 df %>% 
   filter(week_start>as.Date('2020-02-10')) %>%
-  pivot_longer(!c("week_number", "week_start", "week", "wave"), names_to="Metric", values_to="Count") %>% 
-  mutate(lab=case_when(
-    Metric== "CV_outbreaks"~ "COVID-19 outbreaks (>= confirmed or suspected 2 cases)",
-    Metric=="CV_incidents" ~ "COVID-19 infection incidents (>= 1 confirmed  case)")) %>% 
-  filter(!is.na(lab)) %>% 
+  select(week_start, CV_outbreaks, CV_incidents) %>% 
   write_csv(here::here('sprint_2','graphs', 'care_outbreaks_incidents.csv'))
