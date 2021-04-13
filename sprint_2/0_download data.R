@@ -35,7 +35,7 @@ curl_download(link, destfile = destfile)
 ##week starts on monday and ends on sunday and is reported on Thursday
 ##week 40 is 28th Sept-4th Oct 
 
-link <- 'https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/964734/Weekly_Influenza_and_COVID19_report_data_W8.xlsx'
+link <- 'https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/976983/Weekly_Influenza_and_COVID19_report_data_w14.xlsx'
 
 destfile <- here::here('sprint_2', 'data', "Care_home_incident2.xlsx")
 curl_download(link, destfile = destfile)
@@ -46,7 +46,7 @@ curl_download(link, destfile = destfile)
 
 ## ONS Deaths in care home residents the new update
 
-link<-'https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/carehomeresidentdeathsregisteredinenglandandwalesprovisional/2021/weeklydeathscarehomesweek72021.xlsx'
+link<-'https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/carehomeresidentdeathsregisteredinenglandandwalesprovisional/2021/weeklydeathscarehomesweek132021.xlsx'
 
 destfile <- here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx")
 curl_download(link, destfile = destfile)
