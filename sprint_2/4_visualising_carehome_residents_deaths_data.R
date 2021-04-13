@@ -61,11 +61,11 @@ df %>%
   
   annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
   annotate("segment", x=as.Date("2020-06-15"), xend=as.Date("2020-06-15"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
-  annotate("text",x=as.Date("2020-03-11"), y=9800, label=lab_firstwave, size=4, colour="black",hjust=0)+
+  annotate("text",x=as.Date("2020-03-11"), y=9800, label=lab_firstwave, size=3.2, colour="black",hjust=0)+
   annotate("segment", x=as.Date("2020-09-02"), xend=as.Date("2020-09-02"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
-  annotate("text",x=as.Date("2020-09-02"), y=9800, label=lab_secondwave, size=4, colour="black", hjust=0)+
+  annotate("text",x=as.Date("2020-09-02"), y=9800, label=lab_secondwave, size=3.2, colour="black", hjust=0)+
   annotate("rect", xmin = as.Date("2020-03-11"), xmax =as.Date("2020-06-15"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
-  annotate("rect", xmin = as.Date("2020-09-02"), xmax =as.Date("2021-02-22"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
+  annotate("rect", xmin = as.Date("2020-09-02"), xmax =as.Date("2021-03-31"), ymin = 0, ymax = 9000, alpha = .1,fill = "grey20")+
   scale_fill_THF()+
   theme_THF() +
   scale_colour_manual(name="", values=c("average 2015-2019" = "grey20")) +  

@@ -61,7 +61,7 @@ df %>%
   annotate("text",x=as.Date("2020-09-04"), y=1100, label= lab_secondwave, size=3.4, colour="black", hjust=0)+
   annotate("rect", xmin = as.Date("2020-03-14"), xmax =as.Date("2020-06-19"), 
            ymin = 0, ymax = 1100, alpha = .1,fill = "grey20")+
-  annotate("rect", xmin = as.Date("2020-09-05"), xmax =as.Date("2021-02-22"), 
+  annotate("rect", xmin = as.Date("2020-09-05"), xmax =as.Date("2021-04-02"), 
            ymin = 0, ymax = 1000, alpha = .1,fill = "grey20")+
   geom_line(size=1) + geom_point(size=3.5) + geom_point(colour='white') +
   scale_x_date(date_breaks = '4 weeks', date_labels = '%d %b %g')+
