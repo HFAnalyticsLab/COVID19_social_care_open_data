@@ -71,3 +71,13 @@ deaths  %>%
 
 ggsave(here::here('sprint_2', 'graphs', 'deaths_bysetting.png'), dpi=300,
        width = 10, height = 6.5)
+
+df %>% 
+  select(week_number, week_start, care_home = ch_covid_deaths_england, all = covid_deaths_england) %>% 
+  mutate(other = all - care_home) %>% 
+  select(-all) %>%
+  filter(week_start >= ymd("2020-12-19")) %>%  
+  mutate(care_home_norm = 100*care_home/max(care_home, na.rm = TRUE),
+         other_norm = 100*other/max(other, na.rm = TRUE)) %>% 
+  select(-week_number, -care_home, - other) %>% 
+  write_csv(here::here('sprint_2','graphs', 'ENG_covid_deaths_ONS.csv'))
