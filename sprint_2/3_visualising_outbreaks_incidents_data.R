@@ -29,7 +29,6 @@ calcs <-  df %>%
   
   
 #extracting the calculations for the charts
-lab<-paste0(calcs$period," : ")
 lab_firstwave<-paste0("First wave (16 March - 21 June):\n",
                       format(calcs$CV_outbreaks[calcs$wave == "first_wave"],big.mark = ","),
              " confirmed or suspected outbreaks,\n", 
