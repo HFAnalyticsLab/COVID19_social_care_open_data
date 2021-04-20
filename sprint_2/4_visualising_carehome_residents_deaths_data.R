@@ -57,7 +57,8 @@ df %>%
   geom_bar(position="stack", stat="identity") +
   geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
             aes(x = week_start, y = ch_deaths_all_avg_2015_2019_england, fill = NULL, color = "average 2015-2019"),  stat="identity", size=1) +
-  scale_x_date(date_breaks = '4 weeks', date_labels = '%d %b %g') +
+  scale_x_date(breaks = seq(as.Date('2020-03-07'),max(df$week_start),by="4 weeks"),
+               date_labels = '%d %b %g') +
   
   annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
   annotate("segment", x=as.Date("2020-06-15"), xend=as.Date("2020-06-15"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+

@@ -54,7 +54,8 @@ deaths <- df %>%
 deaths  %>% 
   ggplot(., aes(x=week_start, y=deaths, group=setting, colour=setting)) + 
   geom_line(size=1) + geom_point(size=3.5) + geom_point(colour='white') +
-  scale_x_date(date_breaks = '1 weeks', date_labels = '%d %b %g')+
+  scale_x_date(breaks = seq(as.Date('2020-03-07'),max(df$week_start),by="1 weeks"),
+               date_labels = '%d %b %g')+
   scale_y_log10(limits = c(1, 110))+
   scale_colour_THF() +
   theme_THF()+
