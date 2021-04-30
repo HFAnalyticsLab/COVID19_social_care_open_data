@@ -7,6 +7,7 @@ library(tidyverse)
 library(THFstyle)
 # THFstyle is available on GitHub: https://github.com/THF-evaluative-analytics/THFstyle
 library(here)
+library(lubridate)
 
 # Loading data ------------------------------------------------------------
 
@@ -47,6 +48,9 @@ lab_secondwave<-paste0("Second wave (from 5 September):\n",
                        format(calcs$excess_ch_deaths[calcs$wave == "second_wave"],big.mark = ","),
                        " excess deaths, compared to 2015-2019 average")
 
+# Bar graph
+## FIGURE 3 ##
+
 df %>% 
   filter(week_start>as.Date('2020-03-06')) %>% 
   select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england) %>% 
@@ -84,8 +88,8 @@ df %>%
     select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england, ch_deaths_all_avg_2015_2019_england) %>% 
     write_csv(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.csv'))
   
-
-  # Annotated version of the graph
+  
+# Annotated version of the bar graph
   
  df %>% 
     filter(week_start>as.Date('2020-03-06')) %>% 
@@ -111,10 +115,12 @@ df %>%
     theme_THF() +
     scale_colour_manual(name="", values=c("average 2015-2019" = "grey20")) +  
     labs(x= "", y="", title = "Deaths of care home residents in England, by week reported",
-    caption = "Source: ONS Care home resident deaths registered in England and Wales, provisional, 2021; ONS Weekly provisional figures<br>
+    caption = "Reference: P Dunn et al. Briefing: Adult social care and COVID-19: Assessing the policy response in England since the first wave, <br>
+     Health Foundation (forthcoming)<br><br>
+    Data: ONS Care home resident deaths registered in England and Wales, provisional, 2021; ONS Weekly provisional figures<br>
     of care home resident deaths registered in England and Wales, 2020; ONS Deaths registered weekly in England and Wales,<br>
-    provisional. Excess deaths in care homes during the second wave of COVID-19 might be an underestimate, as the average<br>
-    number of deaths for care home residents between 2015 and 2019 was not available for week 53. Weeks commencing on Saturdays.<br>
+    provisional. Excess deaths in care homes during the second wave is likely to be an underestimate, as the average number of <br>
+    deaths for care home residents between 2015 and 2019 was not available for week 53. Weeks commencing on Saturdays.<br>
     At the time of writing data was available up to 2 April 2021.")+
     scale_y_continuous(limits = c(0,11000), breaks = seq(0, 11000, by = 2000))+
     theme(plot.title = element_text(size=16),
@@ -126,5 +132,5 @@ df %>%
           legend.box.margin=margin(15,5,-25,-10))
   
 ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS_annotated.png'),dpi=300,
-         width = 10, height = 8) 
+         width = 10, height = 8.5) 
   
