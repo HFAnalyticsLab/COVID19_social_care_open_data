@@ -112,3 +112,21 @@ CV_weekly<- fread(here("sprint_2","data","clean","ons","weekly-deaths-region","c
   select(nr_deaths,calendar_years,geography, week_number,recorded_deaths)
 
 saveRDS(CV_weekly, here::here('sprint_2', 'data', 'CV_ENG_ONS.rds'))
+
+# weekly deaths by age group
+
+set_up_df %>%
+  ons_dataset_by_id(id="weekly-deaths-age-sex",edition="covid-19",version=26)  %>%
+  ons_download(format="csv") %>%
+  monstr_read_file() %>%  
+  monstr_clean() %>%
+  monstr_write_clean(format="all")
+
+
+CV_age_weekly<- fread(here("sprint_2","data","clean","ons","weekly-deaths-age-sex","covid-19","weekly-deaths-age-sex-v26.csv"), header=TRUE, sep=",", check.names=TRUE) %>%
+  rename(.,nr_deaths=v4_1) %>%
+  arrange(.,administrative_geography,desc(calendar_years)) %>% 
+  filter(deaths == "Deaths involving COVID-19: registrations" & sex == "all") %>% 
+  select(nr_deaths,calendar_years,geography, week_number,age_groups, recorded_deaths)
+
+saveRDS(CV_age_weekly, here::here('sprint_2', 'data', 'CV_age_ENGWALES_ONS.rds'))
