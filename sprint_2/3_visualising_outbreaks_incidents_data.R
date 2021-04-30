@@ -41,6 +41,7 @@ lab_secondwave<-paste0("Second wave (from 7 September):\n",
              "% of care homes")
 
 #creating the charts
+## FIGURE 2##
 
 df %>% 
   filter(week_start>as.Date('2020-02-10')) %>%
