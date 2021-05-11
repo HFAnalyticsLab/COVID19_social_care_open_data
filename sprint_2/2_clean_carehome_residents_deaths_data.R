@@ -13,6 +13,7 @@ library(tidyverse)
 library(tidylog)
 library(lubridate)
 
+
 #### Care home residents deaths - All cause England and Wales ----
 
 chdeaths_all <- read_excel(here::here('sprint_2', 'data', "carehomeresidentsdeaths.xlsx"),
@@ -57,6 +58,11 @@ chdeaths_all_long <- chdeaths_all_long %>%
   add_row(week_number = "53",
           ch_deaths_all_england_and_wales = 2341,
           week_start = as.Date("2020-12-26"))
+
+# we don't have the 5-year average for week 53, so we will re-use week 52
+# (this is what the ONS did in the latest deahts in the care sector analysis, May 2021)
+
+chdeaths_all_long$ch_deaths_all_avg_2015_2019_england[chdeaths_all_long$week_number == 53] <- chdeaths_all_long$ch_deaths_all_avg_2015_2019_england[chdeaths_all_long$week_number == 52]
 
 #### Care home residents deaths - CVOID England and Wales ----
 
