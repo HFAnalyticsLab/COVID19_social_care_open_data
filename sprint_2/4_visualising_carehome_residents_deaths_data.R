@@ -83,6 +83,10 @@ df %>%
          width = 10, height = 6.5) 
 
   
+  ggsave(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.pdf'),dpi=300, device = "pdf",
+         width = 10, height = 6.5) 
+  
+  
   df %>% 
     filter(week_start>as.Date('2020-03-06')) %>% 
     select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england, ch_deaths_all_avg_2015_2019_england) %>% 

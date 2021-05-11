@@ -72,4 +72,8 @@ electives %>%
 ggsave(here::here('sprint_2','graphs', 'electives.png'),dpi=300,
        width = 10, height = 6.5) 
 
+
+ggsave(here::here('sprint_2','graphs', 'electives.pdf'),dpi=300, device = "pdf",
+       width = 10, height = 6.5) 
+
 write_csv(electives, here::here('sprint_2','graphs', 'electives.csv'))

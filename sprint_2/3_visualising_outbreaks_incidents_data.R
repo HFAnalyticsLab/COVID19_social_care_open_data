@@ -65,7 +65,7 @@ df %>%
            ymin = 0, ymax = 1000, alpha = .1,fill = "grey20")+
   geom_line(size=1) + geom_point(size=3.5) + geom_point(colour='white') +
   scale_x_date(date_breaks = '4 weeks', date_labels = '%d %b %g')+
-  scale_y_continuous(limits = c(0,1200), breaks = seq(0, 1200, by = 200))+
+  scale_y_continuous(limits = c(0,1350), breaks = seq(0, 1200, by = 200))+
   scale_colour_THF() +
   theme_THF()+
   labs(x = "", y="", caption = "Sources: PHE COVID-19 outbreaks from COVID-19: number of outbreaks in care homes - management information, <br> PHE National flu and COVID-19 surveillance reports")+
@@ -73,7 +73,7 @@ df %>%
         axis.text.x=element_text(size=14),
         axis.text.y=element_text(size=11),
         plot.caption = element_markdown(hjust=0, size=9),
-        plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"),
+        plot.margin = unit(c(1,1.5,0.5,0.5), "cm"),
         legend.margin=margin(0,0,0,0),
         legend.box.margin=margin(-10,-10,-10,-10)) +
   guides(colour = guide_legend(ncol = 1))
@@ -81,6 +81,10 @@ df %>%
 #saving the graph 
 ggsave(here::here('sprint_2','graphs', 'care_outbreaks_incidents.png'), dpi=300,
        width = 10, height = 6.5) 
+
+ggsave(here::here('sprint_2','graphs', 'care_outbreaks_incidents.pdf'), dpi=300, device  = "pdf",
+       width = 10, height = 6.5) 
+
 
 df %>% 
   filter(week_start>as.Date('2020-02-10')) %>%
