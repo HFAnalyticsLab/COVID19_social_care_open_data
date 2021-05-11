@@ -92,6 +92,16 @@ calcs <-  dom_care_deaths_combined %>%
         pct_excess_deaths = round(100*domcare_deaths_all/domcare_deaths_all_avg_2017_2019 - 100, 0),
         prop_domcare_covid_deaths = round(100*domcare_deaths_covid / domcare_deaths_all, 1))
 
+calcs_overall <-  dom_care_deaths_combined %>%
+  summarise(domcare_deaths_noncovid = sum(nonCOVID19_deaths, na.rm = TRUE),
+            domcare_deaths_covid = sum(COVID19_deaths, na.rm = TRUE),
+            domcare_deaths_all_avg_2017_2019 = sum(mean_deaths_2017_to_2019, na.rm = TRUE)) %>% 
+  mutate(domcare_deaths_all = domcare_deaths_noncovid + domcare_deaths_covid,
+         excess_domcare_deaths = domcare_deaths_all - domcare_deaths_all_avg_2017_2019,
+         pct_excess_deaths = round(100*domcare_deaths_all/domcare_deaths_all_avg_2017_2019 - 100, 0),
+         prop_domcare_covid_deaths = round(100*domcare_deaths_covid / domcare_deaths_all, 1))
+
+
 lab_firstwave<-paste0("First wave (14 March - 19 June):\n",
                       format(calcs$domcare_deaths_covid[calcs$wave == "first_wave"],big.mark = ","),
                       " COVID-19 deaths,\n", 
