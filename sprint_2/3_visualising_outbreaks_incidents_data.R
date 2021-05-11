@@ -34,7 +34,7 @@ lab_firstwave<-paste0("First wave (16 March - 21 June):\n",
              " confirmed or suspected outbreaks,\n", 
              format(calcs$CV_outbreaks_cum_pct[calcs$wave == "first_wave"],big.mark = ","),
              "% of care homes")
-lab_secondwave<-paste0("Second wave (from 7 September):\n",
+lab_secondwave<-paste0("Second wave (7 September - 4 April):\n",
                        format(calcs$CV_incidents[calcs$wave == "second_wave"],big.mark = ","),
              " laboratory-confirmed COVID-19 incidents,\n", 
              format(calcs$CV_incidents_cum_pct[calcs$wave == "second_wave"],big.mark = ","),
