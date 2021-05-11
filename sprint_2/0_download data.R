@@ -8,7 +8,7 @@ library(monstR)
 library(data.table)
 library(here)
 
-# COVID-19 Outbreaks and Incidents ----------------------------------------
+# COVID-19 Outbreaks and Incidents in care homes ---------------------------
 
 ##PHE outbreaks data 
 ##data the first data point is dated 9/3/2020 and covers the Monday to following Sunday so 9th-15th March
@@ -61,7 +61,7 @@ curl_download(link, destfile = destfile)
 
 
 
-# COVID-19 deaths ---------------------------------------------------------
+# COVID-19 deaths (general population)-------------------------------------------
 
 ##Weekly mortality data set from ONS using monstR package
 
@@ -130,3 +130,22 @@ CV_age_weekly<- fread(here("sprint_2","data","clean","ons","weekly-deaths-age-se
   select(nr_deaths,calendar_years,geography, week_number,age_groups, recorded_deaths)
 
 saveRDS(CV_age_weekly, here::here('sprint_2', 'data', 'CV_age_ENGWALES_ONS.rds'))
+
+
+
+# Deaths and COVID deaths in domiciliary care -----------------------------
+
+## ONS Historical data  
+
+link <- 'https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/deathsinvolvingcovid19inthecaresectorenglandandwales/current/previous/v2/julydeathsinvolvingcovid19inthecaresectordataset02072020155122.xlsx'
+
+destfile <- here::here('sprint_2', 'data', "julydeathsinvolvingcovid19inthecaresectordataset02072020155122.xlsx")
+curl_download(link, destfile = destfile)
+
+# ONS Deaths involving COVID-19 in the care sector, England and Wales: deaths registered between week ending 20 March 2020 and week ending 2 April 2021
+
+link <- 'https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/deathsinvolvingcovid19inthecaresectorenglandandwales/current/referencetable10052021114704.xlsx'
+
+destfile <- here::here('sprint_2', 'data', "referencetable10052021114704.xlsx")
+curl_download(link, destfile = destfile)
+
