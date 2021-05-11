@@ -21,19 +21,31 @@ df <- readRDS(here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full
 df <- df %>%
   mutate(wave = case_when(week_start >= as.Date('2020-03-14')& week_start<=as.Date('2020-06-13') ~ "first_wave",
                           week_start>=as.Date('2020-09-05') ~ "second_wave",
-                          TRUE ~ NA_character_),
-         ch_deaths_noncovid_england = ch_deaths_all_england - ch_covid_deaths_england)
+                          TRUE ~ NA_character_))
 
 calcs <-  df %>%
   filter(!is.na(wave)) %>% 
   group_by(wave) %>% 
-  summarise(ch_deaths_all_england = sum(ch_deaths_all_england, na.rm = TRUE),
-            ch_deaths_noncovid_england = sum(ch_deaths_noncovid_england, na.rm = TRUE),
-            ch_covid_deaths_england = sum(ch_covid_deaths_england, na.rm = TRUE),
+  summarise(ch_deaths_all_england = sum(ch_all_deaths , na.rm = TRUE),
+            ch_deaths_noncovid_england = sum(ch_nonCOVID19_deaths, na.rm = TRUE),
+            ch_covid_deaths_england = sum(ch_COVID19_deaths, na.rm = TRUE),
             covid_deaths_england = sum(covid_deaths_england, na.rm = TRUE),
             ch_deaths_all_avg_2015_2019_england = sum(ch_deaths_all_avg_2015_2019_england, na.rm = TRUE)) %>% 
   mutate(excess_ch_deaths = ch_deaths_all_england - ch_deaths_all_avg_2015_2019_england,
          pct_excess_deaths = round(100*ch_deaths_all_england/ch_deaths_all_avg_2015_2019_england - 100, 0),
+         prop_ch_covid_deaths = round(100*ch_covid_deaths_england / covid_deaths_england, 1))
+
+
+# Overall since week ending 20 March
+calcs_overall <-  df %>%
+  filter(week_start >= as.Date('2020-03-14')) %>% 
+  summarise(ch_deaths_all_england = sum(ch_all_deaths , na.rm = TRUE),
+            ch_deaths_noncovid_england = sum(ch_nonCOVID19_deaths, na.rm = TRUE),
+            ch_covid_deaths_england = sum(ch_COVID19_deaths, na.rm = TRUE),
+            covid_deaths_england = sum(covid_deaths_england, na.rm = TRUE),
+            ch_deaths_all_avg_2015_2019_england = sum(ch_deaths_all_avg_2015_2019_england, na.rm = TRUE)) %>% 
+  mutate(excess_ch_deaths = ch_deaths_all_england - ch_deaths_all_avg_2015_2019_england,
+         pct_excess_deaths = round(100*ch_deaths_all_england/ch_deaths_all_avg_2015_2019_england - 100, 1),
          prop_ch_covid_deaths = round(100*ch_covid_deaths_england / covid_deaths_england, 1))
 
 # Visualising the data ----------------------------------------------------
@@ -54,10 +66,10 @@ lab_secondwave<-paste0("Second wave (5 September - 2 April):\n",
 
 df %>% 
   filter(week_start>as.Date('2020-03-06')) %>% 
-  select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england) %>% 
+  select(week_start, ch_nonCOVID19_deaths, ch_COVID19_deaths) %>% 
   pivot_longer(-week_start, names_to="variable", values_to="count") %>% 
-  mutate(variable = case_when(variable == "ch_deaths_noncovid_england" ~ "NON-COVID-19",
-                              variable == "ch_covid_deaths_england" ~  "COVID-19")) %>% 
+  mutate(variable = case_when(variable == "ch_nonCOVID19_deaths" ~ "NON-COVID-19",
+                              variable == "ch_COVID19_deaths" ~  "COVID-19")) %>% 
   ggplot(aes(x = week_start, y = count, fill = variable))+
   geom_bar(position="stack", stat="identity") +
   geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
@@ -90,7 +102,7 @@ df %>%
   
   df %>% 
     filter(week_start>as.Date('2020-03-06')) %>% 
-    select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england, ch_deaths_all_avg_2015_2019_england) %>% 
+    select(week_start, ch_nonCOVID19_deaths, ch_COVID19_deaths, ch_deaths_all_avg_2015_2019_england) %>% 
     write_csv(here::here('sprint_2','graphs', 'care_home_residents_deaths_ONS.csv'))
   
   
@@ -98,10 +110,10 @@ df %>%
   
  df %>% 
     filter(week_start>as.Date('2020-03-06')) %>% 
-    select(week_start, ch_deaths_noncovid_england, ch_covid_deaths_england) %>% 
+    select(week_start, ch_nonCOVID19_deaths, ch_COVID19_deaths) %>% 
     pivot_longer(-week_start, names_to="variable", values_to="count") %>% 
-    mutate(variable = case_when(variable == "ch_deaths_noncovid_england" ~ "NON-COVID-19",
-                                variable == "ch_covid_deaths_england" ~  "COVID-19")) %>% 
+    mutate(variable = case_when(variable == "ch_nonCOVID19_deaths" ~ "NON-COVID-19",
+                                variable == "ch_COVID19_deaths" ~  "COVID-19")) %>% 
     ggplot(aes(x = week_start, y = count, fill = variable))+
     geom_bar(position="stack", stat="identity") +
     geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
@@ -122,10 +134,10 @@ df %>%
     labs(x= "", y="", title = "Deaths of care home residents in England, by week reported",
     caption = "Reference: P Dunn et al. Briefing: Adult social care and COVID-19: Assessing the policy response in England since the first wave, <br>
      Health Foundation (forthcoming)<br><br>
-    Data: ONS Care home resident deaths registered in England and Wales, provisional, 2021; ONS Weekly provisional figures<br>
-    of care home resident deaths registered in England and Wales, 2020; ONS Deaths registered weekly in England and Wales,<br>
-    provisional. Week 53 five-year average was not available, therefore the week 52 five-year average was used to compare against<br>
-    week 52 in 2020. Weeks commencing on Saturdays. At the time of writing data was available up to 2 April 2021.")+
+    Data: ONS Deaths involving COVID-19 in the care sector, England and Wales: deaths registered between week ending 20 March 2020<br>
+    and week ending 2 April 2021; ONS Deaths registered weekly in England and Wales,
+    provisional. Week 53 five-year average was not<br>available, therefore the week 52 five-year average was used to compare against
+    week 52 in 2020. Weeks commencing on Saturdays. <br>At the time of writing data was available up to 2 April 2021.")+
     scale_y_continuous(limits = c(0,11000), breaks = seq(0, 11000, by = 2000))+
     theme(plot.title = element_text(size=16),
           legend.text=element_text(size=12),

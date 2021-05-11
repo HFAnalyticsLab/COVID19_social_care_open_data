@@ -18,14 +18,14 @@ df <- readRDS(here::here('sprint_2', 'data', 'clean', 'ONS_care_home_deaths_full
 
 ## FIGURE 1 ##
 df %>% 
-  select(week_number, week_start, care_home = ch_covid_deaths_england, all = covid_deaths_england) %>% 
+  select(week_number, week_start, care_home = ch_COVID19_deaths, all = covid_deaths_england) %>% 
   pivot_longer(c(-week_number, - week_start), names_to = "setting", values_to = "deaths") %>% 
   ggplot(., aes(x=week_start, y=deaths, group=setting, colour=setting)) + 
   geom_line(size=1) + geom_point(size=3.5) + geom_point(colour='white') +
   scale_x_date(breaks = seq( min(df$week_start), max(df$week_start),by="8 weeks"),
                date_labels = '%d %b %g')+ 
-  annotate("text",x=as.Date("2020-02-01"), y=6000, label="First confirmed\nUK COVID-19\ncases", size=3.2, colour="black", hjust=0)+
-  annotate("segment", x=as.Date("2020-01-31"), xend=as.Date("2020-01-31"), y=0, yend=6000, linetype="dashed", size=1, colour="black")+
+  #annotate("text",x=as.Date("2020-02-01"), y=6000, label="First confirmed\nUK COVID-19\ncases", size=3.2, colour="black", hjust=0)+
+  #annotate("segment", x=as.Date("2020-01-31"), xend=as.Date("2020-01-31"), y=0, yend=6000, linetype="dashed", size=1, colour="black")+
   annotate("text",x=as.Date("2020-03-24"), y=7000, label="First lockdown", size=3.2, colour="black", hjust=0)+
   annotate("segment", x=as.Date("2020-03-23"), xend=as.Date("2020-03-23"), y=0, yend=7000, linetype="dashed", size=1, colour="black")+
   annotate("text",x=as.Date("2020-04-16"), y=6000, label="COVID-19\n socialcare\naction plan", size=3.2, colour="black", hjust=0)+
@@ -82,14 +82,14 @@ ggsave(here::here('sprint_2', 'graphs', 'coviddeaths_ch_vs_all.png'), dpi=300,
 ggsave(here::here('sprint_2', 'graphs', 'coviddeaths_ch_vs_all.pdf'), dpi=300, device = "pdf",
        width = 10, height = 6.5)
 df %>% 
-  select(week_number, week_start, care_home = ch_covid_deaths_england, all = covid_deaths_england) %>% 
+  select(week_number, week_start, care_home = ch_COVID19_deaths, all = covid_deaths_england) %>% 
   filter(week_start >= ymd("2020-02-29")) %>% 
   write_csv(here::here('sprint_2', 'graphs', 'coviddeaths_ch_vs_all.csv'))
 
 
 # Normalised to the peak
 deaths <- df %>% 
-  select(week_number, week_start, care_home = ch_covid_deaths_england, all = covid_deaths_england) %>% 
+  select(week_number, week_start, care_home = ch_COVID19_deaths, all = covid_deaths_england) %>% 
   mutate(other = all - care_home) %>% 
   select(-all) %>%
   filter(week_start >= ymd("2020-12-19")) %>%  
@@ -126,7 +126,7 @@ ggsave(here::here('sprint_2', 'graphs', 'deaths_bysetting.png'), dpi=300,
        width = 10, height = 6.5)
 
 df %>% 
-  select(week_number, week_start, care_home = ch_covid_deaths_england, all = covid_deaths_england) %>% 
+  select(week_number, week_start, care_home = ch_COVID19_deaths, all = covid_deaths_england) %>% 
   mutate(other = all - care_home) %>% 
   select(-all) %>%
   filter(week_start >= ymd("2020-12-19")) %>%  
@@ -158,7 +158,7 @@ CV_age_weekly <- CV_age_weekly %>%
 # Normalised to the peak
 # FIGURE 4 ##
 deaths2 <- df %>% 
-  select(week_number, week_start, care_home = ch_covid_deaths_england_and_wales) %>% 
+  select(week_number, week_start, care_home = EngWales_COVID19_deaths) %>% 
   filter(week_start >= ymd("2020-12-19")) %>%  
   mutate(deaths_norm = 100*care_home/max(care_home, na.rm = TRUE),
          age_group_70 = "care home resident") 
