@@ -22,7 +22,7 @@ dom_care_deaths_historical <- dom_care_deaths_historical %>%
   filter(!is.na(week_start) )
     
 # check all groups have 7 days
-dom_care_deaths_historical %>%  group_by(week_start) %>% count() %>%  arrange(desc(n))
+dom_care_deaths_historical %>%  group_by(week_start) %>% count() %>%  arrange(n)
     
 dom_care_deaths_historical <- dom_care_deaths_historical %>% 
   group_by(week_start) %>% 
@@ -73,7 +73,10 @@ dom_care_deaths <- dom_care_deaths %>%
 
 dom_care_deaths_combined <- dom_care_deaths %>% 
   left_join(dom_care_deaths_historical_avg, by = "week_number_dummy") %>% 
-  select(week_starting, COVID19_deaths, nonCOVID19_deaths, mean_deaths_2017_to_2019)
+  bind_rows(dom_care_deaths_historical_avg[dom_care_deaths_historical_avg$week_number_dummy %in% c("0004-W14-6","0004-W13-6", "0004-W12-6", "0004-W11-6"),] %>% 
+              mutate(week_starting = ISOweek2date(str_replace(week_number_dummy, "0004", "2020")))) %>% 
+  select(week_starting, COVID19_deaths, nonCOVID19_deaths, mean_deaths_2017_to_2019) 
+
 
 
 dom_care_deaths_combined <- dom_care_deaths_combined %>%
@@ -98,11 +101,11 @@ calcs_overall <-  dom_care_deaths_combined %>%
             domcare_deaths_all_avg_2017_2019 = sum(mean_deaths_2017_to_2019, na.rm = TRUE)) %>% 
   mutate(domcare_deaths_all = domcare_deaths_noncovid + domcare_deaths_covid,
          excess_domcare_deaths = domcare_deaths_all - domcare_deaths_all_avg_2017_2019,
-         pct_excess_deaths = round(100*domcare_deaths_all/domcare_deaths_all_avg_2017_2019 - 100, 0),
-         prop_domcare_covid_deaths = round(100*domcare_deaths_covid / domcare_deaths_all, 1))
+         pct_excess_deaths = round(100*domcare_deaths_all/domcare_deaths_all_avg_2017_2019 - 100, 1),
+         prop_domcare_covid_deaths = round(100*domcare_deaths_covid / domcare_deaths_all, 0))
 
 
-lab_firstwave<-paste0("First wave (14 March - 19 June):\n",
+lab_firstwave<-paste0("First wave (11 April - 19 June):\n",
                       format(calcs$domcare_deaths_covid[calcs$wave == "first_wave"],big.mark = ","),
                       " COVID-19 deaths,\n", 
                       format(calcs$excess_domcare_deaths[calcs$wave == "first_wave"],big.mark = ","),
@@ -114,7 +117,7 @@ lab_secondwave<-paste0("Second wave (5 September - 2 April):\n",
                        " excess deaths, compared to 2017-2019 average")
 
 # Bar graph
-## FIGURE ? ##
+## FIGURE 2 ##
 
 dom_care_deaths_combined %>% 
   select(week_starting, nonCOVID19_deaths, COVID19_deaths) %>% 
@@ -125,15 +128,16 @@ dom_care_deaths_combined %>%
   geom_bar(position="stack", stat="identity") +
   geom_line(data = dom_care_deaths_combined, 
             aes(x = week_starting, y = mean_deaths_2017_to_2019, fill = NULL, color = "average 2017-2019"),  stat="identity", size=1) +
-  scale_x_date(breaks = seq(min(dom_care_deaths_combined$week_starting),max(dom_care_deaths_combined$week_starting),by="4 weeks"),
+  scale_x_date(breaks = seq(as.Date('2020-03-14'), max(dom_care_deaths_combined$week_starting),by="4 weeks"),
                date_labels = '%d %b %g') +
-  annotate("segment", x=as.Date("2020-04-09"), xend=as.Date("2020-04-09"), y=0, yend=850, linetype="dashed", size=1, colour="black")+
+  annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=850, linetype="dashed", size=1, colour="black")+
   annotate("segment", x=as.Date("2020-06-15"), xend=as.Date("2020-06-15"), y=0, yend=850, linetype="dashed", size=1, colour="black")+
-  annotate("text",x=as.Date("2020-04-11"), y=940, label=lab_firstwave, size=3.2, colour="black",hjust=0)+
+  annotate("text",x=as.Date("2020-03-11"), y=940, label=lab_firstwave, size=3.2, colour="black",hjust=0)+
   annotate("segment", x=as.Date("2020-09-02"), xend=as.Date("2020-09-02"), y=0, yend=850, linetype="dashed", size=1, colour="black")+
   annotate("text",x=as.Date("2020-09-02"), y=940, label=lab_secondwave, size=3.2, colour="black", hjust=0)+
-  annotate("rect", xmin = as.Date("2020-04-09"), xmax =as.Date("2020-06-15"), ymin = 0, ymax = 850, alpha = .1,fill = "grey20")+
+  annotate("rect", xmin = as.Date("2020-03-11"), xmax =as.Date("2020-06-15"), ymin = 0, ymax = 850, alpha = .1,fill = "grey20")+
   annotate("rect", xmin = as.Date("2020-09-02"), xmax =as.Date("2021-03-31"), ymin = 0, ymax = 850, alpha = .1,fill = "grey20")+
+  annotate("text",x=as.Date("2020-03-23"), y=10, label="Updated data for 2020\nnot available priod\nto 11 April", size=3.2, colour="black", hjust=0,angle = 90)+
   scale_fill_THF()+
   theme_THF() +
   scale_colour_manual(name="", values=c("average 2017-2019" = "grey20")) +  

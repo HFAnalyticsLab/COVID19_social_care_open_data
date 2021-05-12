@@ -62,7 +62,7 @@ lab_secondwave<-paste0("Second wave (5 September - 2 April):\n",
                        " excess deaths, compared to 2015-2019 average")
 
 # Bar graph
-## FIGURE 3 ##
+## FIGURE 4 ##
 
 df %>% 
   filter(week_start>as.Date('2020-03-06')) %>% 
@@ -74,7 +74,7 @@ df %>%
   geom_bar(position="stack", stat="identity") +
   geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
             aes(x = week_start, y = ch_deaths_all_avg_2015_2019_england, fill = NULL, color = "average 2015-2019"),  stat="identity", size=1) +
-  scale_x_date(breaks = seq(as.Date('2020-03-07'),max(df$week_start),by="4 weeks"),
+  scale_x_date(breaks = seq(as.Date('2020-03-14'),max(df$week_start),by="4 weeks"),
                date_labels = '%d %b %g') +
   
   annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
@@ -118,7 +118,7 @@ df %>%
     geom_bar(position="stack", stat="identity") +
     geom_line(data = df[df$week_start>as.Date('2020-03-06'),], 
               aes(x = week_start, y = ch_deaths_all_avg_2015_2019_england, fill = NULL, color = "average 2015-2019"),  stat="identity", size=1) +
-    scale_x_date(breaks = seq(as.Date('2020-03-07'),max(df$week_start),by="4 weeks"),
+    scale_x_date(breaks = seq(as.Date('2020-03-14'),max(df$week_start),by="4 weeks"),
                  date_labels = '%d %b %g') +
     
     annotate("segment", x=as.Date("2020-03-11"), xend=as.Date("2020-03-11"), y=0, yend=9000, linetype="dashed", size=1, colour="black")+
@@ -132,7 +132,7 @@ df %>%
     theme_THF() +
     scale_colour_manual(name="", values=c("average 2015-2019" = "grey20")) +  
     labs(x= "", y="", title = "Deaths of care home residents in England, by week reported",
-    caption = "Reference: P Dunn et al. Briefing: Adult social care and COVID-19: Assessing the policy response in England since the first wave, <br>
+    caption = "Reference: P Dunn et al. Briefing: Adult social care and COVID-19 after the first wave - Assessing the policy response in England, <br>
      Health Foundation (forthcoming)<br><br>
     Data: ONS Deaths involving COVID-19 in the care sector, England and Wales: deaths registered between week ending 20 March 2020<br>
     and week ending 2 April 2021; ONS Deaths registered weekly in England and Wales,

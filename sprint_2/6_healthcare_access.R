@@ -47,7 +47,7 @@ electives <- electives %>%
 
 
 # Visualise ---------------------------------------------------------------
-## FIGURE 5 ##
+## FIGURE 6 ##
 
 electives %>% 
   select(ICD10_name, Year_2019, Year_2020) %>% 

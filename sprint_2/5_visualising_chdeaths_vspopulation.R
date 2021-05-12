@@ -156,7 +156,7 @@ CV_age_weekly <- CV_age_weekly %>%
   filter(!is.na(deaths_norm))
 
 # Normalised to the peak
-# FIGURE 4 ##
+# FIGURE 5 ##
 deaths2 <- df %>% 
   select(week_number, week_start, care_home = EngWales_COVID19_deaths) %>% 
   filter(week_start >= ymd("2020-12-19")) %>%  
