@@ -85,7 +85,7 @@ dom_care_deaths_combined <- dom_care_deaths_combined %>%
                           TRUE ~ NA_character_))
 
 calcs <-  dom_care_deaths_combined %>%
-  filter(!is.na(wave)) %>% 
+  filter(!is.na(wave) & week_starting >= ymd("2020-04-11")) %>% 
   group_by(wave) %>% 
   summarise(domcare_deaths_noncovid = sum(nonCOVID19_deaths, na.rm = TRUE),
             domcare_deaths_covid = sum(COVID19_deaths, na.rm = TRUE),
@@ -96,6 +96,7 @@ calcs <-  dom_care_deaths_combined %>%
         prop_domcare_covid_deaths = round(100*domcare_deaths_covid / domcare_deaths_all, 1))
 
 calcs_overall <-  dom_care_deaths_combined %>%
+  filter(week_starting >= ymd("2020-04-11")) %>% 
   summarise(domcare_deaths_noncovid = sum(nonCOVID19_deaths, na.rm = TRUE),
             domcare_deaths_covid = sum(COVID19_deaths, na.rm = TRUE),
             domcare_deaths_all_avg_2017_2019 = sum(mean_deaths_2017_to_2019, na.rm = TRUE)) %>% 
