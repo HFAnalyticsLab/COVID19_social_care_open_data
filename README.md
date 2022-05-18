@@ -1,7 +1,7 @@
 # COVID-19 social care open data
 
 
-#### Project Status: [Completed]
+#### Project Status: Sprint 1 completed, Sprint 2 in progress
 
 ## Project Description
 
@@ -9,13 +9,31 @@ This analysis describes the impact of COVID-19 on care home residents and home c
 
 ## Outputs
 
+#### Sprint 1 
 The analysis is shown in the Health Foundation briefing [Adult social care and COVID-19: Assessing the impact on social care users and staff in England so far](https://www.health.org.uk/publications/report/adult-social-care-and-covid-19-assessing-the-impact-on-social-care-users-and-staff-in-england-so-far). 
 
-## Data source
 
+## Data source
 This project only uses public data. 
+
+#### Sprint 1 
 [Deaths involving COVID-19 in the care sector](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/deathsinvolvingcovid19inthecaresectorenglandandwales) 
 [Outbreaks in care homes](https://www.gov.uk/government/statistical-data-sets/covid-19-number-of-outbreaks-in-care-homes-management-information)
+
+#### Sprint 2 
+
+Need to create a 'data' and 'graphs' folder in sprint_2 for the code to work
+
+##### Care home resident deaths 
+[Care home resident deaths registered in England and Wales, provisional](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/carehomeresidentdeathsregisteredinenglandandwalesprovisional) <br>
+[Deaths registered weekly in England and Wales, provisional](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales) <br>
+[Notifications of deaths of residents from adult care homes by date of notification and cause](https://statswales.gov.wales/Catalogue/Health-and-Social-Care/Services-for-Social-Care-and-Childrens-Day-Care/notifications-to-care-inspectorate-wales-related-to-covid-19-in-adult-care-homes/deathsofresidentsfromadultcarehomes-by-dateofnotification-causes) <br>
+
+##### Outbreaks
+[Outbreaks in care homes](https://www.gov.uk/government/statistical-data-sets/covid-19-number-of-outbreaks-in-care-homes-management-information) <br>
+[National flu and COVID-19 surveillance  reports](https://www.gov.uk/government/statistics/national-flu-and-covid-19-surveillance-reports) <br>
+[National COVID-19 surveillance reports](https://www.gov.uk/government/publications/national-covid-19-surveillance-reports) <br>
+
 
 ## How does it work?
 
@@ -35,8 +53,6 @@ The following R packages (available on CRAN) are needed:
 * **THFstyle** internal package
 
 ### Getting started
-
-
 
 The 'src' folder contains
 
