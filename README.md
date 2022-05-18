@@ -1,7 +1,7 @@
 # COVID-19 social care open data
 
 
-#### Project Status: Sprint 1 completed, Sprint 2 in progress
+#### Project Status: completed
 
 ## Project Description
 
