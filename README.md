@@ -12,6 +12,8 @@ This analysis describes the impact of COVID-19 on care home residents and home c
 #### Sprint 1 
 The analysis is shown in the Health Foundation briefing [Adult social care and COVID-19: Assessing the impact on social care users and staff in England so far](https://www.health.org.uk/publications/report/adult-social-care-and-covid-19-assessing-the-impact-on-social-care-users-and-staff-in-england-so-far). 
 
+#### Sprint 2 
+The analysis is shown in the Health Foundation briefing [Adult social care and COVID-19 after the first wave: assessing the policy response in England](https://www.health.org.uk/publications/reports/adult-social-care-and-covid-19-after-the-first-wave). 
 
 ## Data source
 This project only uses public data. 
